@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}HR Dashboard — Triage{% endblock %}
+
+{% block content %}
+<div style="display:flex;gap:2rem;align-items:flex-start;">
+
+  <!-- Sidebar: job requisitions -->
+  <div style="width:240px;flex-shrink:0;">
+    <div class="card">
+      <div class="card-header">Open Roles</div>
+      {% for req in requisitions %}
+      <div style="margin-bottom:0.5rem;">
+        <a href="/?req_id={{ req.id }}" style="font-size:0.9rem;{% if req_id == req.id %}font-weight:700;color:#212529;{% endif %}">
+          {{ req.title }}
+        </a>
+      </div>
+      {% else %}
+      <p style="font-size:0.85rem;color:#6c757d;">No open roles.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Main: candidate table -->
+  <div style="flex:1;min-width:0;">
+    {% if selected_req %}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <div>
+        <h1 style="font-size:1.3rem;font-weight:700;">{{ selected_req.title }}</h1>
+        <p style="color:#6c757d;font-size:0.85rem;margin-top:0.2rem;">{{ candidates|length }} candidates triaged</p>
+      </div>
+    </div>
+
+    {% if candidates %}
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table>
+        <thead>
+          <tr>
+            <th>Tier</th>
+            <th>Candidate</th>
+            <th>Score</th>
+            <th>Resume</th>
+            <th>Screen</th>
+            <th>Behavioral</th>
+            <th>Screen Status</th>
+            <th>Decision</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in candidates %}
+          <tr>
+            <td><span class="badge badge-{{ c.tier }}">{{ c.tier }}</span></td>
+            <td>
+              <a href="/candidates/{{ c.application_id }}" style="font-weight:500;">{{ c.name }}</a>
+              <div style="font-size:0.78rem;color:#6c757d;">{{ c.email }}</div>
+            </td>
+            <td>
+              <div style="font-size:0.9rem;font-weight:600;">{{ "%.0f"|format(c.composite_score * 100) }}%</div>
+              {% set pct = (c.composite_score * 100)|int %}
+              <div class="score-bar-wrap" style="margin-top:3px;">
+                <div class="score-bar {% if pct >= 65 %}high{% elif pct >= 45 %}mid{% else %}low{% endif %}" style="width:{{ pct }}%;"></div>
+              </div>
+            </td>
+            <td>{{ "%.0f%%"|format((c.stage1_score or 0) * 100) }}</td>
+            <td>{{ "%.0f%%"|format((c.stage2_score or 0) * 100) if c.stage2_score else "—" }}</td>
+            <td>{{ "%.0f%%"|format((c.behavioral_score or 0) * 100) }}</td>
+            <td><span class="badge badge-{{ c.screen_status }}">{{ c.screen_status }}</span></td>
+            <td>
+              {% if c.hm_decision %}
+                <span class="badge {% if c.hm_decision == 'interview' %}badge-A{% elif c.hm_decision == 'hold' %}badge-B{% else %}badge-D{% endif %}">
+                  {{ c.hm_decision }}
+                </span>
+              {% else %}
+                <a href="/candidates/{{ c.application_id }}" class="btn btn-primary" style="font-size:0.78rem;padding:0.25rem 0.6rem;">Review</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="card">
+      <p style="color:#6c757d;">No candidates have been triaged for this role yet.</p>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="card" style="text-align:center;padding:3rem;">
+      <p style="color:#6c757d;font-size:1rem;">Select a role from the sidebar to view candidates.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

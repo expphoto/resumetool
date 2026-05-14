@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}{{ candidate.name or candidate.email }} — Triage{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:1rem;">
+  <a href="/?req_id={{ req.id }}" style="font-size:0.85rem;color:#6c757d;">← Back to {{ req.title }}</a>
+</div>
+
+<div style="display:flex;gap:1.5rem;align-items:flex-start;">
+
+  <!-- Left column: scores + screening -->
+  <div style="flex:1;min-width:0;">
+
+    <!-- Header -->
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <h1 style="font-size:1.25rem;font-weight:700;">{{ candidate.name or "(no name)" }}</h1>
+        <div style="color:#6c757d;font-size:0.85rem;">{{ candidate.email }}{% if candidate.phone %} · {{ candidate.phone }}{% endif %}</div>
+        <div style="margin-top:0.4rem;">
+          <span class="badge badge-{{ tier }}">Tier {{ tier }}</span>
+          <span style="margin-left:0.5rem;font-size:0.9rem;font-weight:600;">
+            {{ "%.0f"|format((result.composite_score or 0) * 100) }}% composite
+          </span>
+        </div>
+      </div>
+      <div style="text-align:right;font-size:0.85rem;color:#6c757d;">
+        Applied: {{ app.applied_at.strftime("%b %d, %Y") if app.applied_at else "—" }}<br>
+        Source: {{ app.source or "direct" }}
+      </div>
+    </div>
+
+    <!-- Score breakdown -->
+    <div class="card">
+      <div class="card-header">Score Breakdown</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1rem;">
+        {% for label, score in [("Resume Fit", result.stage1_score), ("Screen", result.stage2_score), ("Behavioral", result.behavioral_score)] %}
+        <div style="text-align:center;">
+          <div style="font-size:1.5rem;font-weight:700;{% if score and score >= 0.65 %}color:#198754;{% elif score and score >= 0.45 %}color:#fd7e14;{% elif score %}color:#dc3545;{% else %}color:#adb5bd;{% endif %}">
+            {% if score %}{{ "%.0f%%"|format(score * 100) }}{% else %}—{% endif %}
+          </div>
+          <div style="font-size:0.8rem;color:#6c757d;margin-top:0.2rem;">{{ label }}</div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Per-criterion rubric scores -->
+      {% if criterion_scores %}
+      <div style="font-size:0.85rem;font-weight:600;color:#495057;margin-bottom:0.5rem;">Rubric Detail</div>
+      {% for cs in criterion_scores %}
+      <div style="margin-bottom:0.75rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+          <span style="font-size:0.85rem;">{{ cs.name }}</span>
+          <span style="font-size:0.85rem;font-weight:600;{% if cs.score >= 0.65 %}color:#198754;{% elif cs.score >= 0.45 %}color:#fd7e14;{% else %}color:#dc3545;{% endif %}">
+            {{ "%.0f%%"|format(cs.score * 100) }}
+          </span>
+        </div>
+        <div class="score-bar-wrap">
+          <div class="score-bar {% if cs.score >= 0.65 %}high{% elif cs.score >= 0.45 %}mid{% else %}low{% endif %}" style="width:{{ (cs.score * 100)|int }}%;"></div>
+        </div>
+        {% if cs.reasoning %}
+        <div style="font-size:0.78rem;color:#6c757d;margin-top:3px;">{{ cs.reasoning }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+
+    <!-- Screening Q&A -->
+    {% if screening %}
+    <div class="card">
+      <div class="card-header" style="display:flex;justify-content:space-between;">
+        <span>Async Screen</span>
+        <span class="badge badge-{{ screening.status.value if screening.status.value else screening.status }}">
+          {{ screening.status.value if screening.status.value else screening.status }}
+        </span>
+      </div>
+      {% if screening.ai_score %}
+      <div style="font-size:0.9rem;margin-bottom:1rem;">
+        Screen score: <strong>{{ "%.0f%%"|format(screening.ai_score * 100) }}</strong>
+        {% if screening.ai_score_notes and screening.ai_score_notes.summary %}
+        — {{ screening.ai_score_notes.summary }}
+        {% endif %}
+      </div>
+      {% endif %}
+      {% for q in screening.questions or [] %}
+      <div style="margin-bottom:1rem;padding:0.75rem;background:#f8f9fa;border-radius:6px;">
+        <div style="font-weight:500;font-size:0.88rem;margin-bottom:0.4rem;">{{ q.question }}</div>
+        {% set answer = screening.answers.get(q.id, "") if screening.answers else "" %}
+        <div style="font-size:0.85rem;color:{% if answer %}#212529{% else %}#adb5bd{% endif %};">
+          {{ answer or "(no answer)" }}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Response email preview -->
+    {% if result and result.response_email_body %}
+    <div class="card">
+      <div class="card-header">Auto-Generated Response ({{ tier }} tier)</div>
+      <div style="font-size:0.88rem;white-space:pre-wrap;color:#495057;background:#f8f9fa;padding:1rem;border-radius:6px;">{{ result.response_email_body }}</div>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Right column: HM decision -->
+  <div style="width:260px;flex-shrink:0;">
+    <div class="card">
+      <div class="card-header">Your Decision</div>
+      {% if decision %}
+      <div>
+        <span class="badge {% if decision.decision.value == 'interview' %}badge-A{% elif decision.decision.value == 'hold' %}badge-B{% else %}badge-D{% endif %}" style="font-size:0.95rem;padding:0.35em 0.9em;">
+          {{ decision.decision.value }}
+        </span>
+        {% if decision.notes %}
+        <p style="margin-top:0.75rem;font-size:0.85rem;color:#495057;">{{ decision.notes }}</p>
+        {% endif %}
+      </div>
+      {% else %}
+      <form action="/api/v1/feedback/{{ app.id }}" method="post" id="decision-form">
+        <input type="hidden" name="_json" value="true">
+        <div class="form-group">
+          <label>Decision</label>
+          <select name="decision" required style="margin-bottom:0.75rem;">
+            <option value="">Select…</option>
+            <option value="interview">Interview</option>
+            <option value="hold">Hold</option>
+            <option value="reject">Reject</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Notes (optional)</label>
+          <textarea name="notes" rows="3" placeholder="Any context for this decision…"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Submit Decision</button>
+      </form>
+      <script>
+        document.getElementById('decision-form').addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const fd = new FormData(this);
+          const body = { decision: fd.get('decision'), notes: fd.get('notes') || null };
+          const res = await fetch(this.action, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+          });
+          if (res.ok) { location.reload(); }
+          else { alert('Failed to submit decision.'); }
+        });
+      </script>
+      {% endif %}
+    </div>
+
+    <!-- Behavioral signals -->
+    {% if result and result.behavioral_detail %}
+    <div class="card">
+      <div class="card-header">Behavioral Signals</div>
+      {% for key, val in result.behavioral_detail.items() %}
+      {% if key != 'composite' %}
+      <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.4rem;">
+        <span style="color:#495057;">{{ key.replace('_', ' ').title() }}</span>
+        <span style="font-weight:600;">{{ "%.0f%%"|format(val * 100) }}</span>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

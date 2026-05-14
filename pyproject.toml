@@ -13,7 +13,7 @@ authors = [
 ]
 dependencies = [
   "typer[all]~=0.12",
-  "pydantic~=2.7", 
+  "pydantic~=2.7",
   "pydantic-settings~=2.3",
   "jinja2~=3.1",
   "python-docx~=1.1",
@@ -25,9 +25,15 @@ dependencies = [
   "beautifulsoup4~=4.12",
   "requests~=2.31",
   "sqlalchemy~=2.0",
+  "alembic~=1.13",
   "fastapi~=0.104",
   "uvicorn~=0.24",
-  "aiofiles~=23.2"
+  "aiofiles~=23.2",
+  "python-multipart~=0.0.9",
+  "resend~=2.0",
+  "psycopg2-binary~=2.9",
+  "redis~=5.0",
+  "celery~=5.3"
 ]
 
 [project.optional-dependencies]
@@ -37,11 +43,6 @@ render = [
 scraping = [
   "selenium~=4.15",
   "webdriver-manager~=4.0"
-]
-production = [
-  "psycopg2-binary~=2.9",
-  "redis~=5.0",
-  "celery~=5.3"
 ]
 dev = [
   "pytest~=8.3",
