@@ -28,6 +28,98 @@
 - **Rich CLI Interface** with beautiful tables and progress bars
 - **Cost-Effective AI** using GPT-5-nano
 
+---
+
+## 🏢 Hiring Triage System *(employer-side)*
+
+For companies receiving hundreds of applicants per role, ResumeTool now includes a 5-stage AI hiring triage pipeline that ensures every candidate gets a response — and the best candidates surface automatically.
+
+### The 5 Stages
+
+| Stage | What it does |
+|---|---|
+| **1. Rubric scoring** | Scores each resume against weighted, named criteria — not keyword matching. HR defines dimensions like "years of relevant experience" or "leadership background" with examples. |
+| **2. Async text screen** | Candidates receive a unique link to answer 5-7 AI-generated questions targeting their rubric gaps. No scheduling required. AI scores their answers on submission. |
+| **3. Behavioral signals** | Weights cover letter customization quality (AI-scored), time-to-apply, source channel, and proactive follow-up. Early, tailored applicants score higher. |
+| **4. Auto-routing** | Every candidate is assigned a tier and receives a response. Tier A gets a fast-track interview invite; Tier D gets a warm decline — no one gets silence. |
+| **5. Feedback loop** | Hiring manager decisions (interview / hold / reject) are stored and, after 10+ decisions, automatically calibrate the scoring prompt to match what that company actually values. |
+
+### Running the HR Dashboard
+
+```bash
+# Set your OpenAI key and start the server
+export RESUMETOOL_OPENAI_API_KEY="sk-..."
+uvicorn resumetool.server.app:app --reload
+
+# Open http://localhost:8000  (default login: admin / changeme)
+# Change credentials via env var:
+export RESUMETOOL_HR_AUTH_USERS="yourname:yourpassword"
+```
+
+### Submitting an Application via API
+
+```bash
+curl -u admin:changeme -X POST http://localhost:8000/api/v1/applications \
+  -F "req_id=<job-req-id>" \
+  -F "candidate_email=alice@example.com" \
+  -F "candidate_name=Alice Smith" \
+  -F "source=linkedin" \
+  -F "days_since_posting=2" \
+  -F "cover_letter=I've used your product for 3 years and would love to..." \
+  -F "resume_file=@alice_resume.pdf"
+# Returns: {"tier": "A", "composite_score": 0.88, ...}
+```
+
+### Creating a Job Requisition with a Rubric
+
+```python
+import httpx
+
+req = httpx.post("http://localhost:8000/api/v1/jobs", auth=("admin", "changeme"), json={
+    "company_id": "acme-corp",
+    "title": "Senior Backend Engineer",
+    "description": "We're looking for...",
+    "rubric": {
+        "criteria": [
+            {"name": "Python depth", "description": "3+ years production Python", "weight": 0.40,
+             "examples_good": ["Built async APIs with FastAPI at scale"],
+             "examples_bad": ["Used Python for scripting only"]},
+            {"name": "System design", "description": "Distributed systems experience", "weight": 0.35},
+            {"name": "Team leadership", "description": "Led 2+ engineers", "weight": 0.25},
+        ]
+    }
+})
+print(req.json()["id"])  # use this req_id when submitting applications
+```
+
+### Key Triage Functions
+
+| Function | Location | Purpose |
+|---|---|---|
+| `score_resume_against_rubric()` | `triage/scoring.py` | Stage 1 — per-criterion AI scoring with company calibration |
+| `generate_screening_questions()` | `triage/screening.py` | Stage 2 — generates questions targeting rubric gaps |
+| `score_screening_answers()` | `triage/screening.py` | Stage 2 — scores candidate Q&A answers |
+| `compute_behavioral_score()` | `triage/behavioral.py` | Stage 3 — behavioral signal composite |
+| `compute_composite()` | `triage/router.py` | Stage 4 — weighted score across all stages |
+| `assign_tier()` | `triage/router.py` | Stage 4 — A/B/C/D tier assignment |
+| `generate_response_email()` | `triage/router.py` | Stage 4 — tier-specific human-sounding email |
+| `run_triage()` | `triage/pipeline.py` | Orchestrates all 4 active stages for one application |
+| `record_decision()` | `feedback/loop.py` | Stage 5 — stores HM decision and triggers calibration |
+
+### Tier Logic
+
+```
+Composite score = 50% rubric score + 35% screen score + 15% behavioral score
+(screen weight redistributed to rubric until candidate completes the screen)
+
+Tier A  ≥ 85%  →  Fast-track interview invite
+Tier B  65-85% →  Active hold pool, HM reviews
+Tier C  45-65% →  Polite decline with specific feedback
+Tier D  < 45%  →  Warm decline
+```
+
+---
+
 ## 🎬 Quick Demo
 
 ```bash
@@ -169,20 +261,25 @@ print(f"Found {len(enhanced.skills)} skills")
 - Multi-source job discovery
 - Intelligent job matching
 
-### 🚧 **Phase 2: Optimization** (In Progress)  
-- AI-powered resume optimization
-- ATS-friendly formatting
-- Multiple output formats
+### ✅ **Phase 2: Hiring Triage** (Complete)
+- 5-stage employer-side triage pipeline
+- Rubric-based structured scoring (not keyword matching)
+- Async text screening with AI question generation and answer scoring
+- Behavioral signal weighting
+- Auto-routing with tiered responses — no candidate gets silence
+- Per-company feedback loop via prompt calibration
+- HR web dashboard with HTTP Basic Auth
 
-### 📋 **Phase 3: Automation** (Coming Soon)
-- Automated job applications
-- Response tracking and analytics
-- Integration with LinkedIn/Indeed
+### 🚧 **Phase 3: Optimization** (In Progress)
+- AI-powered resume optimization for job seekers
+- ATS-friendly formatting and multiple output formats
+- Voice screening option (async audio) for triage Stage 2
+- Email delivery integration (Resend/SendGrid) for auto-responses
 
-### 🌟 **Phase 4: Platform** (Future)
-- Web dashboard interface
-- Team collaboration features
-- Advanced analytics and reporting
+### 📋 **Phase 4: Automation** (Coming Soon)
+- Celery/Redis background task processing for high-volume triage
+- ATS integrations (Greenhouse, Lever)
+- Candidate-side application tracking and follow-up nudges
 
 ## 🏗 Architecture
 
