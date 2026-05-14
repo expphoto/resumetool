@@ -32,17 +32,66 @@
 
 ## 🏢 Hiring Triage System *(employer-side)*
 
-For companies receiving hundreds of applicants per role, ResumeTool now includes a 5-stage AI hiring triage pipeline that ensures every candidate gets a response — and the best candidates surface automatically.
+The real problem in modern hiring isn't finding applicants — it's what happens after. An ATS surfaces 180 "qualified" candidates from 500 submissions. A hiring team of 3 cannot meaningfully evaluate 180 people. So most of those candidates get ghosted, not because they failed, but because there was no intelligent routing layer after the initial filter.
 
-### The 5 Stages
+This system is that routing layer. It picks up where the ATS leaves off and applies a multi-stage evaluation that goes far beyond keyword matching — looking at how a candidate thinks, how much effort they actually put in, and who they are beyond their resume.
 
-| Stage | What it does |
-|---|---|
-| **1. Rubric scoring** | Scores each resume against weighted, named criteria — not keyword matching. HR defines dimensions like "years of relevant experience" or "leadership background" with examples. |
-| **2. Async text screen** | Candidates receive a unique link to answer 5-7 AI-generated questions targeting their rubric gaps. No scheduling required. AI scores their answers on submission. |
-| **3. Behavioral signals** | Weights cover letter customization quality (AI-scored), time-to-apply, source channel, and proactive follow-up. Early, tailored applicants score higher. |
-| **4. Auto-routing** | Every candidate is assigned a tier and receives a response. Tier A gets a fast-track interview invite; Tier D gets a warm decline — no one gets silence. |
-| **5. Feedback loop** | Hiring manager decisions (interview / hold / reject) are stored and, after 10+ decisions, automatically calibrate the scoring prompt to match what that company actually values. |
+### The Problem This Solves
+
+```
+500 applicants submitted
+    ↓  ATS / initial AI filter
+180 "qualified" matches  ←── this is where hiring teams get stuck
+    ↓  THIS TOOL
+~15–20 candidates worth a real human conversation
+```
+
+### Pipeline Overview
+
+| Stage | What it does | Status |
+|---|---|---|
+| **1. Rubric scoring** | Scores resumes against weighted, named criteria — not keyword matching. HR defines dimensions like "years of relevant experience" with good/bad examples. | ✅ Built |
+| **2. AI-conducted interview** | Candidates receive a text-based async interview. Questions are psychologically layered — similar themes asked in different ways across the session to check for consistency and depth, not just surface answers. | ✅ Built (text), voice planned |
+| **3. Effort & intent scoring** | Did this person just blast their resume and disappear? Or did they follow up, research the company, customize their cover letter? Two candidates with identical resumes should not score the same if one went the extra mile. | ✅ Built |
+| **4. Public footprint analysis** | Looks at who the candidate is beyond the resume — LinkedIn activity, GitHub contributions, published work, public professional presence. Signals genuine expertise and engagement vs. a polished document with little behind it. | 🚧 Planned |
+| **5. OSINT pre-screen** | Using only publicly available information, runs a background pre-check: news mentions, court records, professional history verification. Flags items for HR review rather than auto-rejecting — the human makes the final call. | 🚧 Planned |
+| **6. Auto-routing** | Every candidate gets a tier (A/B/C/D) and a response. Tier A gets a fast-track interview invite. Tier D gets a warm, human decline. No one gets silence. | ✅ Built |
+| **7. Feedback loop** | Hiring manager decisions feed back into the model. After 10+ decisions, the system learns what "good" actually means for this specific company and calibrates accordingly. | ✅ Built |
+
+### What "Effort Scoring" Actually Means
+
+Two candidates submit identical resumes for the same role. Candidate A applied via LinkedIn in 30 seconds. Candidate B applied directly, wrote a cover letter that referenced a specific product feature, emailed a follow-up two days later, and mentioned something from the company blog.
+
+Most ATS systems treat these as equal. This system does not.
+
+Signals tracked:
+- **Application quality** — cover letter analyzed for genuine customization vs. generic template (AI-scored)
+- **Time-to-apply** — early applicants signal higher intent; normalized against posting date
+- **Source channel** — referral > direct apply > job board blast
+- **Follow-up behavior** — proactive contact after applying is logged and weighted
+- **Research indicators** — references to specific company details, products, team members, or recent news in written responses
+
+### What "AI Interview" Actually Means
+
+This is not a quiz. The async text interview uses psychological interview design:
+
+- Questions are generated from rubric gaps — if a candidate scored low on "system design," they get probed there specifically
+- Similar themes are asked in different framings across the session to test consistency (a common technique in structured interviewing to detect coached or fabricated answers)
+- Behavioral ("tell me about a time..."), situational ("how would you handle..."), and verification ("walk me through how you built...") question types are mixed
+- Answers are scored on specificity, depth, and internal consistency — not just keyword presence
+
+### Public Footprint & OSINT (Planned)
+
+> **Important note on fairness:** These signals are surfaced as information for a human reviewer, not as automatic disqualifiers. The goal is to give hiring teams more signal, not to automate decisions that could introduce bias. Companies using these features should establish clear, consistent policies for how the information is reviewed.
+
+Planned data sources (public only):
+- **LinkedIn** — activity level, recommendations, publication history, network density in relevant fields
+- **GitHub / GitLab** — actual code contributions, commit frequency, open source engagement
+- **Google / news** — professional mentions, published articles, conference talks, press coverage
+- **Public records** — court records, business filings, professional license status
+- **Domain expertise signals** — Stack Overflow reputation, industry forum participation, published research
+
+The output is a **public profile summary** with flagged items for HR review. Nothing is used to auto-reject.
 
 ### Running the HR Dashboard
 
@@ -56,18 +105,19 @@ uvicorn resumetool.server.app:app --reload
 export RESUMETOOL_HR_AUTH_USERS="yourname:yourpassword"
 ```
 
-### Submitting an Application via API
+### Submitting Applications via API
 
 ```bash
+# Ingest a single resume — triage runs immediately and returns a tier
 curl -u admin:changeme -X POST http://localhost:8000/api/v1/applications \
   -F "req_id=<job-req-id>" \
   -F "candidate_email=alice@example.com" \
   -F "candidate_name=Alice Smith" \
   -F "source=linkedin" \
   -F "days_since_posting=2" \
-  -F "cover_letter=I've used your product for 3 years and would love to..." \
+  -F "cover_letter=I've followed your work on X for two years and..." \
   -F "resume_file=@alice_resume.pdf"
-# Returns: {"tier": "A", "composite_score": 0.88, ...}
+# Returns: {"tier": "A", "composite_score": 0.88, "screen_link": "/screen/<token>"}
 ```
 
 ### Creating a Job Requisition with a Rubric
@@ -92,31 +142,33 @@ req = httpx.post("http://localhost:8000/api/v1/jobs", auth=("admin", "changeme")
 print(req.json()["id"])  # use this req_id when submitting applications
 ```
 
-### Key Triage Functions
+### Key Functions (Built)
 
 | Function | Location | Purpose |
 |---|---|---|
 | `score_resume_against_rubric()` | `triage/scoring.py` | Stage 1 — per-criterion AI scoring with company calibration |
-| `generate_screening_questions()` | `triage/screening.py` | Stage 2 — generates questions targeting rubric gaps |
-| `score_screening_answers()` | `triage/screening.py` | Stage 2 — scores candidate Q&A answers |
-| `compute_behavioral_score()` | `triage/behavioral.py` | Stage 3 — behavioral signal composite |
-| `compute_composite()` | `triage/router.py` | Stage 4 — weighted score across all stages |
-| `assign_tier()` | `triage/router.py` | Stage 4 — A/B/C/D tier assignment |
-| `generate_response_email()` | `triage/router.py` | Stage 4 — tier-specific human-sounding email |
-| `run_triage()` | `triage/pipeline.py` | Orchestrates all 4 active stages for one application |
-| `record_decision()` | `feedback/loop.py` | Stage 5 — stores HM decision and triggers calibration |
+| `generate_screening_questions()` | `triage/screening.py` | Stage 2 — generates psychologically layered questions from rubric gaps |
+| `score_screening_answers()` | `triage/screening.py` | Stage 2 — scores answers on specificity, depth, and consistency |
+| `compute_behavioral_score()` | `triage/behavioral.py` | Stage 3 — effort and intent composite from multiple signals |
+| `compute_composite()` | `triage/router.py` | Stage 6 — weighted score across all active stages |
+| `assign_tier()` | `triage/router.py` | Stage 6 — A/B/C/D tier assignment |
+| `generate_response_email()` | `triage/router.py` | Stage 6 — tier-specific human-sounding response email |
+| `run_triage()` | `triage/pipeline.py` | Orchestrates all stages for one application |
+| `record_decision()` | `feedback/loop.py` | Stage 7 — stores HM decision and triggers prompt calibration |
 
 ### Tier Logic
 
 ```
-Composite score = 50% rubric score + 35% screen score + 15% behavioral score
-(screen weight redistributed to rubric until candidate completes the screen)
+Composite = 50% rubric score + 35% interview score + 15% effort/intent score
+(interview weight rolls into rubric until the candidate completes their screen)
 
 Tier A  ≥ 85%  →  Fast-track interview invite
-Tier B  65-85% →  Active hold pool, HM reviews
-Tier C  45-65% →  Polite decline with specific feedback
+Tier B  65-85% →  Active hold — HM reviews with full context
+Tier C  45-65% →  Polite decline with 1-2 specific gap notes
 Tier D  < 45%  →  Warm decline
 ```
+
+No candidate gets silence. Every application generates a response.
 
 ---
 
@@ -261,25 +313,27 @@ print(f"Found {len(enhanced.skills)} skills")
 - Multi-source job discovery
 - Intelligent job matching
 
-### ✅ **Phase 2: Hiring Triage** (Complete)
-- 5-stage employer-side triage pipeline
-- Rubric-based structured scoring (not keyword matching)
-- Async text screening with AI question generation and answer scoring
-- Behavioral signal weighting
+### ✅ **Phase 2: Triage Foundation** (Complete)
+- Rubric-based structured resume scoring (not keyword matching)
+- Async text interview with AI-generated, psychologically layered questions
+- Effort and intent scoring (cover letter quality, time-to-apply, follow-up, source channel)
 - Auto-routing with tiered responses — no candidate gets silence
 - Per-company feedback loop via prompt calibration
-- HR web dashboard with HTTP Basic Auth
+- HR web dashboard
 
-### 🚧 **Phase 3: Optimization** (In Progress)
-- AI-powered resume optimization for job seekers
-- ATS-friendly formatting and multiple output formats
-- Voice screening option (async audio) for triage Stage 2
-- Email delivery integration (Resend/SendGrid) for auto-responses
+### 🚧 **Phase 3: Deeper Candidate Intelligence** (Next)
+- **Public footprint analysis** — LinkedIn activity, GitHub contributions, published work, professional presence
+- **OSINT pre-screen** — public records, news mentions, professional license verification; surfaced for HR review, not auto-rejection
+- **Voice screening option** — async audio responses with Whisper transcription, adds tone and fluency signal to text answers
+- **Consistency scoring** — detect coached or fabricated answers by cross-referencing responses across multi-part interview questions
+- **Email delivery** — Resend/SendGrid integration so response emails actually send, not just generate
 
-### 📋 **Phase 4: Automation** (Coming Soon)
-- Celery/Redis background task processing for high-volume triage
-- ATS integrations (Greenhouse, Lever)
-- Candidate-side application tracking and follow-up nudges
+### 📋 **Phase 4: Scale & Integrations** (Planned)
+- Celery + Redis background processing for high-volume ingestion (500+ resumes in a batch)
+- ATS integrations — push/pull with Greenhouse, Lever, Workday
+- Bulk resume upload — ingest a ZIP of ATS-exported resumes in one API call
+- Candidate portal — let candidates check their screen status and respond to follow-up questions
+- Audit log — exportable record of every scoring decision for compliance review
 
 ## 🏗 Architecture
 
