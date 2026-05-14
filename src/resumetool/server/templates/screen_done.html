@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Screen Complete</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f8f9fa; color: #212529; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .box { max-width: 480px; text-align: center; padding: 2.5rem 2rem; background: #fff; border-radius: 12px; border: 1px solid #dee2e6; }
+    .icon { font-size: 3rem; margin-bottom: 1rem; }
+    h1 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; }
+    p { color: #6c757d; font-size: 0.95rem; line-height: 1.6; }
+  </style>
+</head>
+<body>
+<div class="box">
+  {% if expired %}
+  <div class="icon">⏰</div>
+  <h1>This link has expired</h1>
+  <p>The screening window for this application has closed. If you believe this is an error, please reach out to the hiring team directly.</p>
+  {% elif already_done %}
+  <div class="icon">✅</div>
+  <h1>Already submitted</h1>
+  <p>We already have your answers on file. There's nothing more to do — we'll be in touch soon.</p>
+  {% else %}
+  <div class="icon">🎉</div>
+  <h1>Answers received — thank you!</h1>
+  <p>Your screening responses have been submitted. We'll review them and be in touch within a few business days. In the meantime, feel free to close this window.</p>
+  {% endif %}
+</div>
+</body>
+</html>
