@@ -835,7 +835,7 @@ footer.landing-footer {
   gap: 0.75rem;
   justify-content: center;
   flex-wrap: wrap;
-  margin-top: 0.5rem;
+  margin-top: 1.5rem;
 }
 .contact-card code {
   background: var(--ink-100);
@@ -843,25 +843,6 @@ footer.landing-footer {
   border-radius: 4px;
   font-size: 0.85em;
   color: var(--ink-900);
-}
-.contact-chat-note {
-  margin-top: 1.25rem;
-  padding: 0.75rem 1rem;
-  background: var(--accent-soft);
-  border-radius: var(--radius);
-  font-size: 0.9rem;
-  color: var(--ink-700);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  text-align: left;
-  max-width: max-content;
-  margin-left: auto;
-  margin-right: auto;
-}
-.contact-chat-note a {
-  color: var(--accent);
-  font-weight: 600;
 }
 
 /* ==========================================================================
