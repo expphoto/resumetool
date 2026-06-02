@@ -17,3 +17,8 @@ coverage/
 .ruff_cache/
 .code/
 
+
+# Local-only artifacts
+archive/
+triage.db
+triage.db-*

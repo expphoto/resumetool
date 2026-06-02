@@ -383,6 +383,33 @@ ruff check .
 - **[Demo Results](DEMO_RESULTS.md)** - Detailed feature showcase
 - **[Quick Start](USAGE_QUICK.md)** - Get up and running fast
 
+## 🌐 Deploy the marketing site to GitHub Pages
+
+The marketing site (`/` landing + `/demo` guided walkthrough) is
+fully static and ships via `.github/workflows/pages.yml` on every
+push to `main`. The portal is **not** included — it requires a live
+FastAPI deployment with a database.
+
+```bash
+# Build locally to /dist
+python scripts/build_static.py
+
+# Build to a custom directory and base path
+python scripts/build_static.py --out public --base /resumetool/
+```
+
+The script:
+- Renders `landing.html` and `demo.html` from the Jinja2 templates
+- Injects `<base href="/resumetool/">` so absolute paths resolve
+  under the GitHub Pages project URL
+- Rewrites every `/dashboard` link to `/#contact` (so the "Open
+  Portal" CTAs route to the contact section on the marketing page
+  instead of 404'ing on Pages)
+- Copies `static/*.css` and writes a `.nojekyll` marker
+
+After pushing to GitHub, enable Pages → "GitHub Actions" and the
+site will be live at `https://<user>.github.io/resumetool/`.
+
 ## 🔒 Privacy & Security
 
 - **Local Processing**: Resume analysis happens on your machine

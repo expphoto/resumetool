@@ -1,0 +1,350 @@
+/* ==========================================================================
+   ResumeTool — Guided demo page
+   Dark immersive theme. Animated candidate counts + flowing particles.
+   ========================================================================== */
+
+body.demo {
+  background:
+    radial-gradient(900px 500px at 50% -100px, rgba(99,102,241,0.20), transparent 70%),
+    radial-gradient(800px 500px at -10% 100%, rgba(6,182,212,0.12), transparent 70%),
+    var(--bg);
+  min-height: 100vh;
+}
+
+.demo-wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+}
+
+/* ---------- intro card ------------------------------------------------- */
+.demo-intro {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+.demo-intro h1 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  letter-spacing: -0.02em;
+  margin: 0.5rem 0 1rem;
+}
+.demo-intro h1 .grad {
+  background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.demo-intro p {
+  color: var(--ink-700);
+  max-width: 580px;
+  margin: 0 auto 1.5rem;
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+.demo-intro .start-btn {
+  font-size: 1.05rem;
+  padding: 0.9em 1.6em;
+  border: 0;
+  cursor: pointer;
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  color: #fff;
+  border-radius: var(--radius);
+  font-weight: 600;
+  box-shadow: 0 8px 32px rgba(99,102,241,0.28);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.demo-intro .start-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(99,102,241,0.36); }
+.demo-intro .start-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+.demo-meta {
+  display: flex; justify-content: center; gap: 1.5rem;
+  margin-top: 1.25rem;
+  color: var(--ink-500);
+  font-size: 0.85rem;
+}
+.demo-meta span { display: inline-flex; align-items: center; gap: 0.4rem; }
+.demo-meta strong { color: var(--ink-900); font-weight: 600; }
+
+/* ---------- progress timeline ----------------------------------------- */
+.demo-progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 2.5rem 0 1.5rem;
+  position: relative;
+  padding: 0 1rem;
+}
+.demo-progress::before {
+  content: "";
+  position: absolute;
+  top: 14px; left: 2rem; right: 2rem;
+  height: 2px;
+  background: var(--ink-200);
+  z-index: 0;
+}
+.demo-progress .bar-fill {
+  position: absolute;
+  top: 14px; left: 2rem;
+  height: 2px;
+  background: linear-gradient(90deg, #6366f1, #06b6d4);
+  z-index: 1;
+  width: 0%;
+  transition: width 0.4s ease;
+}
+.demo-progress .step {
+  position: relative;
+  z-index: 2;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0.4rem;
+  flex: 0 0 auto;
+}
+.demo-progress .dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--bg-elev);
+  border: 2px solid var(--ink-200);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ink-500);
+  transition: all 0.3s;
+}
+.demo-progress .step.active .dot {
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  color: #fff;
+  border-color: transparent;
+  transform: scale(1.15);
+  box-shadow: 0 0 0 6px rgba(99,102,241,0.18);
+}
+.demo-progress .step.done .dot {
+  background: #10b981;
+  color: #fff;
+  border-color: transparent;
+}
+.demo-progress .label {
+  font-size: 0.72rem;
+  color: var(--ink-500);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.demo-progress .step.active .label { color: var(--accent); }
+
+/* ---------- stage card ------------------------------------------------- */
+.stage {
+  background: var(--bg-elev);
+  border: 1px solid var(--ink-200);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 2rem;
+  text-align: center;
+  min-height: 420px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.stage::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: radial-gradient(600px 300px at 50% -50px, rgba(99,102,241,0.10), transparent 70%);
+  pointer-events: none;
+}
+
+.stage .stage-num {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 0.3em 0.9em;
+  border-radius: 999px;
+  margin-bottom: 1.25rem;
+}
+.stage h2 {
+  font-size: clamp(1.4rem, 3vw, 1.85rem);
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.01em;
+}
+.stage .stage-sub {
+  color: var(--ink-700);
+  font-size: 1.02rem;
+  max-width: 540px;
+  margin: 0 auto 1.75rem;
+  line-height: 1.55;
+}
+
+/* the big animated number */
+.count-block {
+  display: flex; align-items: baseline; justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.count-block .big {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: clamp(3.5rem, 9vw, 6rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s;
+}
+.count-block .big.flash {
+  color: var(--accent);
+  text-shadow: 0 0 24px rgba(99,102,241,0.3);
+}
+.count-block .label {
+  font-size: 1rem;
+  color: var(--ink-500);
+  font-weight: 500;
+}
+.count-block .arrow {
+  color: var(--ink-500);
+  font-size: 1.5rem;
+  margin: 0 0.4rem;
+}
+.count-block .big.target {
+  color: #10b981;
+}
+
+/* particles — the visual of candidates flowing */
+.particles {
+  position: relative;
+  height: 80px;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto 1.5rem;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--ink-100);
+  border: 1px solid var(--ink-200);
+}
+.particles .p {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.85;
+  animation: flow 2.4s linear infinite;
+}
+@keyframes flow {
+  0%   { transform: translateX(-20px) translateY(0); opacity: 0; }
+  10%  { opacity: 0.9; }
+  90%  { opacity: 0.9; }
+  100% { transform: translateX(500px) translateY(0); opacity: 0; }
+}
+.particles .p.kept { background: #10b981; }
+.particles .p.rejected { background: #ef4444; opacity: 0.45; }
+.particles .p.amber { background: #f59e0b; }
+
+/* per-stage action line */
+.stage .action {
+  color: var(--ink-900);
+  font-size: 1.0rem;
+  font-weight: 500;
+  background: var(--ink-100);
+  padding: 0.7em 1.1em;
+  border-radius: 8px;
+  border: 1px solid var(--ink-200);
+  max-width: 520px;
+  margin: 0 auto;
+}
+.stage .action .accent { color: var(--accent); font-weight: 700; }
+.stage .action .good   { color: #10b981; font-weight: 700; }
+.stage .action .warn   { color: #f59e0b; font-weight: 700; }
+
+/* ---------- controls --------------------------------------------------- */
+.demo-controls {
+  display: flex; justify-content: center; gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+.demo-controls button {
+  background: var(--bg-elev);
+  border: 1px solid var(--ink-200);
+  color: var(--ink-700);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.55em 1.1em;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.demo-controls button:hover { border-color: var(--accent); color: var(--accent); }
+.demo-controls button:disabled { opacity: 0.4; cursor: default; }
+.demo-controls .next-btn {
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  color: #fff;
+  border: 0;
+}
+.demo-controls .next-btn:hover { color: #fff; transform: translateY(-1px); }
+
+/* ---------- final outcome card ---------------------------------------- */
+.outcome {
+  background: linear-gradient(135deg, rgba(16,185,129,0.10), rgba(6,182,212,0.10));
+  border: 1px solid rgba(16,185,129,0.3);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  text-align: center;
+  margin-top: 2rem;
+  display: none;
+}
+.outcome.shown { display: block; animation: rise 0.5s ease; }
+.outcome h2 {
+  font-size: 1.6rem;
+  margin: 0 0 0.5rem;
+  color: #10b981;
+}
+.outcome .lede {
+  font-size: 1.05rem;
+  color: var(--ink-900);
+  margin: 0 0 1.5rem;
+}
+.outcome .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  max-width: 700px;
+  margin: 0 auto 1.5rem;
+}
+.outcome .cell {
+  background: var(--bg-elev);
+  border: 1px solid var(--ink-200);
+  border-radius: 8px;
+  padding: 1rem 0.75rem;
+}
+.outcome .cell .n {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+}
+.outcome .cell .l {
+  font-size: 0.78rem;
+  color: var(--ink-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.25rem;
+}
+.outcome .cell.hired .n { color: #10b981; }
+.outcome .cell.final .n { color: #06b6d4; }
+.outcome .cell.review .n { color: #f59e0b; }
+.outcome .cell.emailed .n { color: #6366f1; }
+
+.outcome .close-msg {
+  color: var(--ink-700);
+  font-size: 0.95rem;
+  margin: 1.25rem 0 0;
+  font-style: italic;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 700px) {
+  .stage { padding: 1.75rem 1.25rem; min-height: 380px; }
+  .demo-progress .label { display: none; }
+  .count-block .big { font-size: 3.2rem; }
+}

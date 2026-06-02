@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+{% block title %}ResumeTool — See a 250-resume hiring cycle play out in 90 seconds{% endblock %}
+{% block body_class %}demo{% endblock %}
+{% block nav_class %}landing-nav{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="/static/demo.css">
+{% endblock %}
+
+{% block nav_links %}
+  <a href="/#how-it-works">How it works</a>
+  <a href="/#pricing">Pricing</a>
+  <a href="/dashboard">Portal</a>
+{% endblock %}
+{% block nav_user %}
+  <a href="/dashboard" class="cta">Open Portal →</a>
+{% endblock %}
+
+{% block content %}
+<div class="demo-wrap">
+
+  <section class="demo-intro" id="intro">
+    <span class="eyebrow" style="display:inline-block;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--accent);background:var(--accent-soft);padding:0.3em 0.9em;border-radius:999px;">Guided demo</span>
+    <h1>Watch a real hiring cycle <span class="grad">play out in 90 seconds.</span></h1>
+    <p>
+      A senior role just opened. <strong>250 people applied</strong> in
+      the first week. Press play and watch the funnel narrow — and
+      notice that <strong>every single candidate hears back</strong>
+      before the timer hits zero.
+    </p>
+    <button class="start-btn" id="start-btn" type="button">▶ Start the demo</button>
+    <div class="demo-meta">
+      <span>⏱ <strong>~85s</strong> runtime</span>
+      <span>📊 <strong>6</strong> stages</span>
+      <span>📧 <strong>249</strong> personalized replies</span>
+      <span>⌨ <strong>space</strong> to pause · <strong>→</strong> next · <strong>←</strong> back</span>
+    </div>
+  </section>
+
+  <!-- progress -->
+  <div class="demo-progress" id="progress" style="visibility: hidden;">
+    <div class="bar-fill" id="bar-fill"></div>
+    <div class="step" data-step="0"><div class="dot">1</div><div class="label">Apply</div></div>
+    <div class="step" data-step="1"><div class="dot">2</div><div class="label">Triage</div></div>
+    <div class="step" data-step="2"><div class="dot">3</div><div class="label">Screen</div></div>
+    <div class="step" data-step="3"><div class="dot">4</div><div class="label">AI Interview</div></div>
+    <div class="step" data-step="4"><div class="dot">5</div><div class="label">HR Review</div></div>
+    <div class="step" data-step="5"><div class="dot">6</div><div class="label">Hire</div></div>
+  </div>
+
+  <!-- the stage area (single visible card that swaps content) -->
+  <section class="stage" id="stage" style="visibility: hidden;">
+    <span class="stage-num" id="stage-eyebrow">Stage 1 of 6</span>
+    <h2 id="stage-title">Loading…</h2>
+    <p class="stage-sub" id="stage-sub"></p>
+
+    <div class="particles" id="particles" aria-hidden="true"></div>
+
+    <div class="count-block" id="count-block">
+      <span class="big" id="big-num">250</span>
+      <span class="label" id="big-label">candidates</span>
+    </div>
+
+    <div class="action" id="stage-action"></div>
+  </section>
+
+  <!-- controls -->
+  <div class="demo-controls" id="controls" style="visibility: hidden;">
+    <button type="button" id="pause-btn" disabled>⏸ Pause</button>
+    <button type="button" id="prev-btn" disabled>← Back</button>
+    <button type="button" id="next-btn" class="next-btn" disabled>Next →</button>
+    <button type="button" id="replay-btn" disabled>↺ Replay</button>
+  </div>
+
+  <!-- final outcome -->
+  <section class="outcome" id="outcome">
+    <h2>Closed. Everyone heard back.</h2>
+    <p class="lede">
+      One week. One role. 250 applicants. Here's what the inbox looks like now.
+    </p>
+    <div class="grid">
+      <div class="cell hired">
+        <div class="n" id="out-hired">1</div>
+        <div class="l">Hired</div>
+      </div>
+      <div class="cell final">
+        <div class="n" id="out-final">2</div>
+        <div class="l">Final round, declined</div>
+      </div>
+      <div class="cell review">
+        <div class="n" id="out-review">5</div>
+        <div class="l">Hold pool, follow-up later</div>
+      </div>
+      <div class="cell emailed">
+        <div class="n" id="out-emailed">249</div>
+        <div class="l">Personalized decline sent</div>
+      </div>
+    </div>
+    <p class="close-msg">
+      "We went with another candidate" — sent to zero people.<br>
+      ResumeTool. Hiring triage that talks to everyone.
+    </p>
+    <div style="margin-top: 1.5rem;">
+      <a href="/dashboard" class="btn btn-primary btn-lg">Open the live portal</a>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(() => {
+  // ---- stage data -----------------------------------------------------
+  const STAGES = [
+    {
+      n: 1, of: 6,
+      title: "250 people apply on Monday morning",
+      sub: "Resumes pour in from LinkedIn, referrals, and direct applications. By 9am the inbox is already out of control — and 75% of them will never even reach the hiring manager because of the ATS.",
+      start: 0, end: 250,
+      particles: { count: 60, kind: "default" },
+      action: "Day 1. The role has been open <span class='accent'>14 hours</span>. Inbox: <span class='warn'>250</span>.",
+      autoMs: 13000,
+    },
+    {
+      n: 2, of: 6,
+      title: "ResumeTool runs alongside the keyword ATS — and shows its work",
+      sub: "Your keyword ATS would have surfaced 25 different resumes — the top 25 at <em>formatting for robots</em>, not the top 25 at the actual job. ResumeTool scores all 250 against a weighted rubric you control (Kubernetes depth, AWS, Python, mentoring, production track record). Per-criterion reasoning is logged for every resume, so the 25 that surface to the hiring manager come with receipts — and the highly qualified candidate the keyword ATS would have rejected doesn't get buried.",
+      start: 250, end: 25,
+      particles: { count: 80, kind: "rejected" },
+      action: "<span class='accent'>~30s</span> per resume. <span class='good'>25 reach the HM with reasoning attached</span> — the right 25, not just the keyword-lucky 25.",
+      autoMs: 17000,
+    },
+    {
+      n: 3, of: 6,
+      title: "Top 25 get a text-based screen, on their own time",
+      sub: "5-7 targeted questions based on the gaps the resume revealed. Candidates answer in their own time — no phone tag, no scheduling pain. Recruiter sees the answer quality, not just the keyword count.",
+      start: 25, end: 6,
+      particles: { count: 30, kind: "amber" },
+      action: "<span class='warn'>19 fall off</span> on gaps surfaced by the screen. <span class='good'>6 advance</span> with a written record.",
+      autoMs: 15000,
+    },
+    {
+      n: 4, of: 6,
+      title: "6 finalists do a live AI interview",
+      sub: "Conversational interview, real follow-up questions, scored on substance. The recruiter doesn't have to sit in — they see the transcript and the AI's structured notes.",
+      start: 6, end: 3,
+      particles: { count: 20, kind: "amber" },
+      action: "<span class='warn'>3 drop off</span> on follow-up depth. <span class='good'>3 make it to human review</span>.",
+      autoMs: 14000,
+    },
+    {
+      n: 5, of: 6,
+      title: "Hiring manager reviews the final 3",
+      sub: "The HM opens the dashboard, sees per-criterion reasoning, the screen answers, and the AI interview transcript. They spend an hour making 3 decisions — instead of a week reading 250 resumes.",
+      start: 3, end: 3,
+      particles: { count: 12, kind: "kept" },
+      action: "<span class='good'>1 hire</span> selected. <span class='warn'>2 declined</span> with a specific, honest reason from the HM.",
+      autoMs: 13000,
+    },
+    {
+      n: 6, of: 6,
+      title: "Every other candidate gets a personalized reply",
+      sub: "Tier B: honest timeline. Tier C: specific gap, encouragement. Tier D: brief warmth. 249 people who would have heard nothing instead get a real reply — usually naming a concrete reason.",
+      start: 0, end: 249,
+      particles: { count: 80, kind: "kept" },
+      action: "<span class='good'>249 personalized emails queued.</span> 0 candidates ghosted.",
+      autoMs: 16000,
+    },
+  ];
+
+  // ---- elements -------------------------------------------------------
+  const $ = (id) => document.getElementById(id);
+  const startBtn = $("start-btn");
+  const intro    = $("intro");
+  const progress = $("progress");
+  const stage    = $("stage");
+  const controls = $("controls");
+  const barFill  = $("bar-fill");
+  const nextBtn  = $("next-btn");
+  const prevBtn  = $("prev-btn");
+  const pauseBtn = $("pause-btn");
+  const replayBtn = $("replay-btn");
+
+  // ---- state ----------------------------------------------------------
+  let idx = 0;
+  let auto = true;
+  let timer = null;
+  let countAnim = null;
+  const DEFAULT_AUTO_MS = 12000;
+
+  // ---- helpers --------------------------------------------------------
+  function setProgress() {
+    barFill.style.width = (idx / (STAGES.length - 1) * 100) + "%";
+    document.querySelectorAll(".demo-progress .step").forEach((el) => {
+      const i = Number(el.dataset.step);
+      el.classList.toggle("active", i === idx);
+      el.classList.toggle("done",  i <  idx);
+    });
+  }
+
+  function spawnParticles(kind, count) {
+    const wrap = $("particles");
+    wrap.innerHTML = "";
+    const total = count;
+    for (let i = 0; i < total; i++) {
+      const p = document.createElement("div");
+      p.className = "p " + kind;
+      p.style.top = (Math.random() * 70 + 5) + "px";
+      const dur = 1.6 + Math.random() * 1.6;
+      p.style.animationDuration = dur + "s";
+      p.style.animationDelay = (-Math.random() * dur) + "s";
+      wrap.appendChild(p);
+    }
+  }
+
+  function animateCount(target, label, ms) {
+    const big = $("big-num");
+    const lbl = $("big-label");
+    lbl.textContent = label;
+    const startVal = Number(big.textContent.replace(/[^0-9]/g, "")) || 0;
+    const t0 = performance.now();
+    big.classList.add("flash");
+    if (countAnim) cancelAnimationFrame(countAnim);
+
+    function step(now) {
+      const p = Math.min(1, (now - t0) / ms);
+      // ease-out cubic
+      const e = 1 - Math.pow(1 - p, 3);
+      const cur = Math.round(startVal + (target - startVal) * e);
+      big.textContent = cur.toLocaleString();
+      if (p < 1) {
+        countAnim = requestAnimationFrame(step);
+      } else {
+        big.classList.remove("flash");
+        big.textContent = target.toLocaleString();
+      }
+    }
+    countAnim = requestAnimationFrame(step);
+  }
+
+  function renderStage(i) {
+    const s = STAGES[i];
+    $("stage-eyebrow").textContent = `Stage ${s.n} of ${s.of}`;
+    $("stage-title").textContent = s.title;
+    $("stage-sub").textContent = s.sub;
+    $("stage-action").innerHTML = s.action;
+    spawnParticles(s.particles.kind, s.particles.count);
+    animateCount(s.end, s.start === s.end ? "candidates still in play" : "candidates", 1400);
+    setProgress();
+
+    // buttons
+    prevBtn.disabled = (i === 0);
+    nextBtn.disabled = (i === STAGES.length - 1);
+    replayBtn.disabled = false;
+    if (i === STAGES.length - 1) {
+      pauseBtn.textContent = "▶ Auto-play off";
+      stopAuto();
+    }
+  }
+
+  // ---- auto play ------------------------------------------------------
+  function startAuto() {
+    auto = true;
+    pauseBtn.textContent = "⏸ Pause";
+    stopAuto();
+    const advance = () => {
+      if (idx < STAGES.length - 1) {
+        idx++;
+        renderStage(idx);
+        if (idx === STAGES.length - 1) {
+          setTimeout(showOutcome, 1800);
+        }
+        const ms = (STAGES[idx].autoMs || DEFAULT_AUTO_MS);
+        timer = setTimeout(advance, ms);
+      } else {
+        stopAuto();
+      }
+    };
+    const ms = (STAGES[idx].autoMs || DEFAULT_AUTO_MS);
+    timer = setTimeout(advance, ms);
+  }
+
+  function stopAuto() {
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+
+  function showOutcome() {
+    $("outcome").classList.add("shown");
+  }
+
+  // ---- wire up --------------------------------------------------------
+  startBtn.addEventListener("click", () => {
+    intro.style.display = "none";
+    progress.style.visibility = "visible";
+    stage.style.visibility = "visible";
+    controls.style.visibility = "visible";
+    idx = 0;
+    renderStage(idx);
+    startAuto();
+  });
+
+  nextBtn.addEventListener("click", () => {
+    if (idx < STAGES.length - 1) {
+      idx++;
+      renderStage(idx);
+      if (idx === STAGES.length - 1) {
+        stopAuto();
+        setTimeout(showOutcome, 1400);
+      }
+    }
+  });
+
+  prevBtn.addEventListener("click", () => {
+    if (idx > 0) {
+      idx--;
+      renderStage(idx);
+      $("outcome").classList.remove("shown");
+    }
+  });
+
+  pauseBtn.addEventListener("click", () => {
+    if (timer) { stopAuto(); pauseBtn.textContent = "▶ Resume auto-play"; }
+    else       { startAuto(); pauseBtn.textContent = "⏸ Pause"; }
+  });
+
+  replayBtn.addEventListener("click", () => {
+    $("outcome").classList.remove("shown");
+    idx = 0;
+    renderStage(idx);
+    startAuto();
+  });
+
+  // keyboard shortcuts
+  document.addEventListener("keydown", (e) => {
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+    if (e.key === " " || e.code === "Space") {
+      e.preventDefault();
+      pauseBtn.click();
+    } else if (e.key === "ArrowRight" || e.key === "n") {
+      e.preventDefault();
+      if (!nextBtn.disabled) nextBtn.click();
+    } else if (e.key === "ArrowLeft" || e.key === "p") {
+      e.preventDefault();
+      if (!prevBtn.disabled) prevBtn.click();
+    } else if (e.key === "r") {
+      e.preventDefault();
+      replayBtn.click();
+    }
+  });
+})();
+</script>
+{% endblock %}

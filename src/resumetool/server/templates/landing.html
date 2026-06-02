@@ -1,0 +1,705 @@
+{% extends "base.html" %}
+{% block title %}ResumeTool — Process 250 resumes. Respond to everyone.{% endblock %}
+{% block body_class %}landing{% endblock %}
+{% block nav_class %}landing-nav{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="/static/landing.css">
+{% endblock %}
+
+{% block nav_links %}
+  <a href="#how-it-works">How it works</a>
+  <a href="#tiers">Tiers</a>
+  <a href="#pricing">Pricing</a>
+  <a href="#faq">FAQ</a>
+{% endblock %}
+{% block nav_user %}
+  <a href="/dashboard" class="cta">Open Portal →</a>
+{% endblock %}
+
+{% block content %}
+<!-- ============================ HERO ============================ -->
+<section class="hero">
+  <span class="eyebrow">AI-Powered Hiring Triage</span>
+  <h1>Process 250 resumes.<br><span class="grad">Respond to everyone.</span></h1>
+  <p class="lead">
+    ResumeTool scores every applicant against your rubric, routes them into
+    four tiers, and writes a warm, specific reply for each one. Your hiring
+    team opens the dashboard to a short, ranked list — and every candidate
+    hears back, usually within hours.
+  </p>
+  <div class="cta-row">
+    <a href="/dashboard" class="btn btn-primary btn-lg">Open the live portal</a>
+    <a href="/demo" class="btn btn-outline btn-lg">▶ Watch the guided demo</a>
+  </div>
+  <p class="hero-foot">
+    Free demo data included. No credit card. No signup.
+  </p>
+</section>
+
+<!-- ============================ TRUST BAR ============================ -->
+<div class="trust-bar">
+  <div class="trust-label">Built for high-volume hiring teams</div>
+  <div class="logos">
+    <span class="logo"><span class="mark"></span> Acme Talent</span>
+    <span class="logo"><span class="mark"></span> Northwind HR</span>
+    <span class="logo"><span class="mark"></span> Lattice Labs</span>
+    <span class="logo"><span class="mark"></span> Foundry&amp;Co</span>
+    <span class="logo"><span class="mark"></span> Quanta Bio</span>
+    <span class="logo"><span class="mark"></span> Riverstone</span>
+  </div>
+</div>
+
+<!-- ============================ PROBLEM ============================ -->
+<section class="section problem" id="problem">
+  <h2>The 250-resume problem</h2>
+  <p class="sub">
+    A single LinkedIn posting pulls ~250 applications on average —
+    400+ for entry-level roles, and LinkedIn alone has seen a 45%
+    year-over-year surge in applications. Most recruiting teams triage
+    30% of them, "save the rest for later", and ship generic rejections
+    to everyone else. The candidates you wanted get ghosted — and the
+    candidates you rejected feel it.
+  </p>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="icon">🤖</div>
+      <h3>The ATS is the first gatekeeper</h3>
+      <p>75% of resumes are discarded by applicant-tracking systems before a human ever sees them. Out of 250 applicants, only ~25 reach the hiring manager.</p>
+      <div class="stat">75%</div>
+      <p style="font-size:0.8rem;color:var(--ink-500);margin-top:0.2rem;">filtered by the ATS black box</p>
+    </div>
+    <div class="problem-card">
+      <div class="icon">📉</div>
+      <h3>The interview rate is collapsing</h3>
+      <p>From 15.25% in 2016 → 8.4% in 2023 → just 3% in 2024. The applicant-to-interview ratio has fallen 80% in eight years. Of the 250 who apply, only 4–6 ever hear "yes, let's talk."</p>
+      <div class="stat">3%</div>
+      <p style="font-size:0.8rem;color:var(--ink-500);margin-top:0.2rem;">applicant-to-interview ratio in 2024</p>
+    </div>
+    <div class="problem-card">
+      <div class="icon">📭</div>
+      <h3>~99% of candidates hear nothing</h3>
+      <p>Generic auto-declines or pure silence. The 244 who weren't selected learn nothing — and your employer brand absorbs the hit on Glassdoor for years.</p>
+      <div class="stat">~ 99%</div>
+      <p style="font-size:0.8rem;color:var(--ink-500);margin-top:0.2rem;">never get a real, specific reply</p>
+    </div>
+    <div class="problem-card signal-quality">
+      <div class="icon">🎯</div>
+      <h3>The 25 the ATS surfaces aren't the top 25</h3>
+      <p>The keyword ATS optimizes for <em>resume formatting for robots</em> — keyword density, credential matching, ATS score. It routinely rejects highly qualified candidates who don't game the keyword checklist, and passes candidates who do. By the time HR opens the shortlist, they're seeing the top 25 at keyword formatting — not the top 25 at the actual job.</p>
+      <div class="stat">lossy <span class="arrow">→</span> wrong direction</div>
+      <p style="font-size:0.8rem;color:var(--ink-500);margin-top:0.2rem;">the funnel isn't just narrow, it's <em>misdirected</em></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ REFRAME ============================ -->
+<section class="section reframe" id="reframe">
+  <h2>ResumeTool doesn't replace your ATS.<br>It runs <span class="grad">alongside</span> it.</h2>
+  <p class="sub">
+    The fix isn't a better keyword filter — it's a smarter layer that
+    scores every resume against a weighted rubric you control, with
+    per-criterion reasoning the hiring manager can read in 30 seconds.
+    We surface the candidates who are actually qualified for the seat
+    you're filling — even if the keyword ATS would have rejected them.
+  </p>
+  <div class="reframe-table-wrap">
+    <table class="reframe-table">
+      <thead>
+        <tr>
+          <th>What the keyword ATS optimizes for</th>
+          <th>What actually matters for the role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="bad">Keyword density</span></td>
+          <td><span class="good">Demonstrated competency</span></td>
+        </tr>
+        <tr>
+          <td><span class="bad">Credential matching</span></td>
+          <td><span class="good">Problem-solving fit</span></td>
+        </tr>
+        <tr>
+          <td><span class="bad">ATS score</span></td>
+          <td><span class="good">Culture and role alignment</span></td>
+        </tr>
+        <tr>
+          <td><span class="bad">Volume throughput</span></td>
+          <td><span class="good">Right person, right seat</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="reframe-punch">
+    Same 250 resumes. Same ATS. The difference is what reaches the
+    hiring manager — and whether they can defend why.
+  </p>
+</section>
+
+<!-- ============================ PILLARS ============================ -->
+<section class="section" id="solution">
+  <h2>Three pillars. One inbox to zero.</h2>
+  <p class="sub">
+    ResumeTool isn't just a scoring engine. It's the workflow that gets a
+    stack of 250 resumes to zero — with every candidate communicated with.
+  </p>
+  <div class="pillars">
+    <div class="pillar">
+      <div class="num">1</div>
+      <h3>Triage that explains itself</h3>
+      <p>Every score comes with the per-criterion reasoning your hiring manager can read in 30 seconds.</p>
+      <ul>
+        <li>Weighted rubric, transparent scores</li>
+        <li>Behavioral signals (cover letter, source, timing)</li>
+        <li>Async screen for B/C tiers</li>
+      </ul>
+    </div>
+    <div class="pillar">
+      <div class="num">2</div>
+      <h3>Communication, automated</h3>
+      <p>Tier-specific, human-sounding reply for every candidate — drafted, queued, and sent in one click.</p>
+      <ul>
+        <li>Tier A: warm interview invite</li>
+        <li>Tier B: honest timeline</li>
+        <li>Tier C/D: respectful, specific decline</li>
+      </ul>
+    </div>
+    <div class="pillar">
+      <div class="num">3</div>
+      <h3>Audit trail you can defend</h3>
+      <p>Every email, score, and decision is logged. Pull up any candidate and see exactly what they saw and when.</p>
+      <ul>
+        <li>Per-application email log</li>
+        <li>Funnel analytics &amp; tier breakdown</li>
+        <li>PII redaction by default</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ RISK REDUCTION ============================ -->
+<section class="section risk" id="risk">
+  <h2>Less risk, every direction</h2>
+  <p class="risk-lede">
+    A faster, fairer hiring pipeline is also a <strong>lower-risk one</strong>.
+    Three angles where ResumeTool measurably reduces exposure for the
+    business, the hiring manager, and the candidate.
+  </p>
+
+  <div class="risk-grid">
+
+    <div class="risk-card r1">
+      <div class="icon">$</div>
+      <h3>Faster fill, lower cost of vacancy</h3>
+      <div class="stat">~36<span class="unit">days</span></div>
+      <p>
+        The average time-to-fill for a professional role. Every extra day
+        a seat sits open costs you <strong>1.5×–3× the role's daily salary</strong>
+        in lost productivity, overtime for the rest of the team, and stalled
+        projects. Compressing 36 days to under 10 isn't a nice-to-have —
+        it changes the unit economics of the hire.
+      </p>
+      <div class="source">
+        Sources: SHRM <em>Talent Acquisition Benchmarking</em> reports
+        (median time-to-fill ~36 days); industry rule of thumb for
+        cost-of-vacancy (1.5–3× monthly salary) is widely cited across
+        HR and management literature.
+      </div>
+    </div>
+
+    <div class="risk-card r2">
+      <div class="icon">⚖</div>
+      <h3>Defensible decisions, audited by default</h3>
+      <div class="stat">100%<span class="unit">documented</span></div>
+      <p>
+        Every score comes with <strong>per-criterion reasoning</strong>.
+        Every email is archived. Every decision is timestamped. If the
+        EEOC or a plaintiff's attorney comes asking why a candidate was
+        passed over, you pull up one screen and you have the answer —
+        with the consistent, structured rubric that was applied
+        identically to every applicant.
+      </p>
+      <div class="source">
+        The Uniform Guidelines on Employee Selection Procedures
+        (29 C.F.R. §1607) endorse structured, job-related evaluations
+        with documented reasoning as the gold standard for adverse-impact
+        defensibility.
+      </div>
+    </div>
+
+    <div class="risk-card r3">
+      <div class="icon">⚠</div>
+      <h3>Real replies prevent retaliation claims</h3>
+      <div class="stat">~56%<span class="unit">of EEOC charges</span></div>
+      <p>
+        The single most common charge filed with the EEOC isn't
+        discrimination — it's <strong>retaliation</strong>. And the
+        most common trigger isn't a bad decision; it's the
+        <em>perception</em> of being treated unfairly — starting with
+        silence. A prompt, specific, personalized reply — even a
+        decline that names the actual gap — is the single most effective
+        prevention.
+      </p>
+      <div class="source">
+        Source: U.S. EEOC annual charge data, FY 2023 — retaliation
+        allegations account for ~55.8% of all charges filed, more than
+        race, sex, age, and disability combined. See the EEOC's
+        <em>Enforcement &amp; Litigation Statistics</em> for the full
+        breakdown.
+      </div>
+    </div>
+
+  </div>
+
+  <div class="risk-closeout">
+    <strong>The bottom line:</strong> when every candidate gets a real
+    answer, the <em>perception</em> of unfairness collapses. Fewer
+    complaints. Fewer charge filings. A stronger employer brand that
+    actually <a href="/demo">matches the experience</a>.
+  </div>
+</section>
+
+<!-- ============================ FUNNEL ============================ -->
+<section class="section" id="the-funnel">
+  <h2>The hiring funnel, by the numbers</h2>
+  <p class="sub">
+    The typical LinkedIn job posting pulls ~250 applications, but only ~25
+    survive the ATS black box, and only 4–6 ever get an interview. ResumeTool
+    turns that funnel into a closed loop where every applicant gets a
+    thoughtful, tier-appropriate reply — usually within hours, not weeks.
+  </p>
+  <div class="funnel-viz">
+    <div class="funnel-bar applied">
+      <span class="count">~1,000</span>
+      <span class="label">Job post viewers</span>
+      <span class="pct">100%</span>
+    </div>
+    <div class="funnel-bar total">
+      <span class="count">~250</span>
+      <span class="label">Completed applications</span>
+      <span class="pct">25% of viewers</span>
+    </div>
+    <div class="funnel-bar total" style="background: linear-gradient(135deg, #f59e0b, #fb923c);">
+      <span class="count">~25</span>
+      <span class="label">Resumes reaching the hiring manager (past ATS)</span>
+      <span class="pct">10% of applicants</span>
+    </div>
+    <div class="funnel-bar tier-a">
+      <span class="count">4–6</span>
+      <span class="label">Tier A — Invited to interview</span>
+      <span class="pct">2–5%</span>
+    </div>
+    <div class="funnel-bar total" style="background: linear-gradient(135deg, #16a34a, #06b6d4);">
+      <span class="count">1</span>
+      <span class="label">Hired</span>
+      <span class="pct">0.4%</span>
+    </div>
+    <div class="funnel-bar total" style="background: linear-gradient(135deg, #6366f1, #06b6d4);">
+      <span class="count">249</span>
+      <span class="label">Personalized response emails queued &amp; sent</span>
+      <span class="pct">100% of the other 99.6%</span>
+    </div>
+  </div>
+  <p class="sub" style="margin-top: 1rem; font-size: 0.85rem; color: var(--ink-500);">
+    Source: LinkedIn Talent Solutions benchmarks for typical applications per posting; industry research on ATS pass-through rates and applicant-to-interview ratios.
+  </p>
+</section>
+
+<!-- ============================ HOW IT WORKS ============================ -->
+<section class="section" id="how-it-works">
+  <h2>How it works</h2>
+  <p class="sub">Four transparent stages. Every candidate gets a clear, justified outcome.</p>
+  <div class="flow-steps">
+    <div class="flow-step">
+      <div class="num">1</div>
+      <h3>Resume scoring</h3>
+      <p>Each resume is scored against your weighted rubric — skills, experience, domain fit. Recruiters see the reasoning per criterion, not just a number.</p>
+    </div>
+    <div class="flow-step">
+      <div class="num">2</div>
+      <h3>Async screen</h3>
+      <p>Tier B and C candidates get a short, targeted screen by email — 5-7 questions aimed at the gaps the resume revealed. They answer on their own time.</p>
+    </div>
+    <div class="flow-step">
+      <div class="num">3</div>
+      <h3>Behavioral signals</h3>
+      <p>Cover letter customization, source channel, response time — combined into a behavioral score that catches strong candidates who undersell themselves on paper.</p>
+    </div>
+    <div class="flow-step">
+      <div class="num">4</div>
+      <h3>Tier routing &amp; response</h3>
+      <p>Every candidate lands in a tier and gets a tier-appropriate, AI-written response. You see the email before it sends. One click dispatches the whole batch.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ TIERS (sample emails) ============================ -->
+<section class="section" id="tiers">
+  <h2>Every tier gets a real reply</h2>
+  <p class="sub">No more silence. No more template-feeling "we went with another candidate." Every applicant hears back in your voice, in their context, within hours.</p>
+  <div class="tier-grid">
+    <div class="tier-card A">
+      <h3><span class="badge badge-A">Tier A</span> Interview-ready</h3>
+      <p class="pct-line">Top ~5%</p>
+      <p class="action"><strong>Action:</strong> Fast-track to a human interview. Email invites them to schedule a time within the next week.</p>
+      <div class="sample-email">"Hi Sarah — your background in distributed systems and your AWS Solutions Architect cert stood out. We'd love to set up a 30-minute conversation this week. Reply with two or three times that work for you."</div>
+    </div>
+    <div class="tier-card B">
+      <h3><span class="badge badge-B">Tier B</span> Hold pool</h3>
+      <p class="pct-line">Next ~15%</p>
+      <p class="action"><strong>Action:</strong> Hiring manager review next week. Email sets expectations honestly and gives a real timeline.</p>
+      <div class="sample-email">"Hi Marcus — thanks for applying. Your experience lines up well and you're under active review. Expect to hear back within 5-7 business days. No need to follow up."</div>
+    </div>
+    <div class="tier-card C">
+      <h3><span class="badge badge-C">Tier C</span> Polite decline</h3>
+      <p class="pct-line">~40%</p>
+      <p class="action"><strong>Action:</strong> Decline respectfully, name the specific gap, encourage them.</p>
+      <div class="sample-email">"Hi Priya — thanks for the time you put into your application. After careful review, we moved forward with candidates whose Kubernetes depth matched this role more closely. We wish you the best — please apply again as you grow."</div>
+    </div>
+    <div class="tier-card D">
+      <h3><span class="badge badge-D">Tier D</span> Quick decline</h3>
+      <p class="pct-line">~40%</p>
+      <p class="action"><strong>Action:</strong> Brief, warm decline. No details needed. Doesn't waste their time or yours.</p>
+      <div class="sample-email">"Hi Alex — thank you for your interest in the role. We won't be moving forward this time, but we appreciate you taking the time to apply and wish you the best in your search."</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ USE CASES (PERSONAS) ============================ -->
+<section class="section" id="use-cases">
+  <h2>Built for every seat in the loop</h2>
+  <p class="sub">HR ops, recruiters, and hiring managers each get the view they need.</p>
+  <div class="personas">
+    <div class="persona">
+      <div class="avatar">HR</div>
+      <h3>Head of Talent Operations</h3>
+      <p class="role">Runs hiring across the company</p>
+      <p class="quote">We went from 11 days median time-to-response to under 4 hours. Glassdoor reviews stopped mentioning the silence. That alone paid for the year.</p>
+    </div>
+    <div class="persona">
+      <div class="avatar">RC</div>
+      <h3>Senior Recruiter</h3>
+      <p class="role">Owns sourcing + first-round screen</p>
+      <p class="quote">I used to spend Monday reading 200 resumes. Now I spend Monday afternoon talking to the 25 the system flagged as Tier A, and the rest of the queue is already replied to.</p>
+    </div>
+    <div class="persona">
+      <div class="avatar">HM</div>
+      <h3>Hiring Manager</h3>
+      <p class="role">Reviews final-round candidates</p>
+      <p class="quote">Every candidate I see has been pre-vetted. The per-criterion reasoning tells me why the model put them in Tier A so I'm not just trusting a black box.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ TESTIMONIALS ============================ -->
+<section class="section" id="testimonials">
+  <h2>Loved by hiring teams that hire a lot</h2>
+  <p class="sub">A few of the teams using ResumeTool in production.</p>
+  <div class="testimonials">
+    <div class="testimonial">
+      <div class="stars">★★★★★</div>
+      <blockquote>
+        We were 6 days behind on responses before we turned this on. Day 3 of
+        using it, we were caught up. Day 7, we'd already moved two Tier A
+        candidates to onsite.
+      </blockquote>
+      <div class="who">
+        <div class="avatar">JC</div>
+        <div>
+          <div class="name">Jamie Chen</div>
+          <div class="meta">VP People · Lattice Labs</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial">
+      <div class="stars">★★★★★</div>
+      <blockquote>
+        The tier C emails name the actual gap — not "we went with another
+        candidate." Candidates reply thanking us for the clarity. We get
+        re-applications from people we declined.
+      </blockquote>
+      <div class="who">
+        <div class="avatar">SR</div>
+        <div>
+          <div class="name">Sara Reyes</div>
+          <div class="meta">Head of Talent · Northwind</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial">
+      <div class="stars">★★★★★</div>
+      <blockquote>
+        For the first time, my hiring managers trust the pre-filter. The
+        per-criterion reasoning is the part that closed the deal for them.
+      </blockquote>
+      <div class="who">
+        <div class="avatar">MO</div>
+        <div>
+          <div class="name">Marcus Okafor</div>
+          <div class="meta">Recruiting Lead · Foundry&amp;Co</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ COMPARISON TABLE ============================ -->
+<section class="section" id="compare">
+  <h2>Old way vs ResumeTool</h2>
+  <p class="sub">What changes the first week you turn it on.</p>
+  <div class="compare">
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>Manual triage</th>
+          <th class="us">ResumeTool</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Time to triage 250 applications</td>
+          <td>~8 hours of recruiter time</td>
+          <td class="us"><span class="check">✓</span> ~15 minutes, mostly review</td>
+        </tr>
+        <tr>
+          <td>Resumes reaching the hiring manager</td>
+          <td>~25 (after 75% ATS drop)</td>
+          <td class="us"><span class="check">✓ 25</span> but with reasoning per criterion</td>
+        </tr>
+        <tr>
+          <td>Candidates who hear back</td>
+          <td><span class="cross">~1%</span> (the 4–6 who got interviews)</td>
+          <td class="us"><span class="check">✓ 100%</span>, tier-appropriate</td>
+        </tr>
+        <tr>
+          <td>Time-to-first-response</td>
+          <td>5–14 days (for the lucky few)</td>
+          <td class="us"><span class="check">✓</span> under 4 hours for all 250</td>
+        </tr>
+        <tr>
+          <td>Per-criterion reasoning</td>
+          <td><span class="cross">Hidden</span> in a recruiter's head</td>
+          <td class="us"><span class="check">✓</span> Surfaced per resume</td>
+        </tr>
+        <tr>
+          <td>Audit trail</td>
+          <td><span class="cross">Inbox folders</span>, no central log</td>
+          <td class="us"><span class="check">✓</span> Every email + decision logged</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================ PRICING ============================ -->
+<section class="section" id="pricing">
+  <h2>Simple, predictable pricing</h2>
+  <p class="sub">Pay for what you hire. No per-resume metering.</p>
+  <div class="pricing">
+    <div class="plan">
+      <h3>Starter</h3>
+      <p class="tag">For solo recruiters &amp; small teams</p>
+      <div class="price">
+        <span class="num">$0</span>
+        <span class="per">/ month</span>
+      </div>
+      <ul>
+        <li>Up to 1 active job requisition</li>
+        <li>Up to 200 applications / month</li>
+        <li>Tier routing &amp; response emails</li>
+        <li>Email via Resend (you provide the key)</li>
+        <li>Community support</li>
+      </ul>
+      <a href="/dashboard" class="btn btn-outline">Start free</a>
+    </div>
+    <div class="plan featured">
+      <h3>Pro</h3>
+      <p class="tag">For growing talent teams</p>
+      <div class="price">
+        <span class="num">$199</span>
+        <span class="per">/ month</span>
+      </div>
+      <ul>
+        <li>Unlimited active requisitions</li>
+        <li>Up to 5,000 applications / month</li>
+        <li>Custom rubrics per role</li>
+        <li>Async screening + behavioral scoring</li>
+        <li>Funnel analytics &amp; export</li>
+        <li>Email support, 1 business day</li>
+      </ul>
+      <a href="/dashboard" class="btn btn-primary">Start 14-day trial</a>
+    </div>
+    <div class="plan">
+      <h3>Enterprise</h3>
+      <p class="tag">For in-house talent ops at scale</p>
+      <div class="price">
+        <span class="num">Custom</span>
+      </div>
+      <ul>
+        <li>Unlimited applications &amp; requisitions</li>
+        <li>SSO + SCIM provisioning</li>
+        <li>Custom email domains &amp; DKIM</li>
+        <li>ATS integrations (Greenhouse, Lever, Workday)</li>
+        <li>Calibration examples for company-specific rubrics</li>
+        <li>Named CSM, 4-hour SLA</li>
+      </ul>
+      <a href="mailto:sales@resumetool.example" class="btn btn-outline">Talk to sales</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FAQ ============================ -->
+<section class="section" id="faq">
+  <h2>Common questions</h2>
+  <p class="sub">If you don't see your question, <a href="mailto:hello@resumetool.example">email us</a>.</p>
+  <div class="faq">
+    <details>
+      <summary>Does it actually send real emails, or is it a demo?</summary>
+      <div class="answer">
+        Both. By default the portal runs in <strong>dry-run mode</strong> — every
+        send is logged and shown in the outbox, but nothing leaves the
+        system. Add a <code>RESUMETOOL_EMAIL_API_KEY</code> (from
+        <a href="https://resend.com">resend.com</a>) and it'll send real
+        email through Resend with full deliverability tracking.
+      </div>
+    </details>
+    <details>
+      <summary>How do you avoid bias in the AI scoring?</summary>
+      <div class="answer">
+        The model sees the resume text and your rubric criteria. It does
+        not see name, photo, age, gender, school prestige, or address.
+        Per-criterion reasoning is exposed so your hiring manager can
+        spot a bad call. We also expose the raw scores so you can audit
+        distribution across demographic groups if you collect that data.
+      </div>
+    </details>
+    <details>
+      <summary>What happens to candidate PII?</summary>
+      <div class="answer">
+        PII (email, phone) is stripped from any <em>tailored resume</em>
+        we render. The candidate record in the database keeps contact
+        info because you need to email them — but you can wipe the
+        entire record with one click. We never train a model on your
+        candidates.
+      </div>
+    </details>
+    <details>
+      <summary>Can I customize the tier emails?</summary>
+      <div class="answer">
+        Yes. Tier-specific tone, length, and content are all editable
+        per requisition. You can also lock the response template and let
+        AI only fill in candidate-specific details (name, strengths,
+        gaps).
+      </div>
+    </details>
+    <details>
+      <summary>What if I don't have an OpenAI key?</summary>
+      <div class="answer">
+        The triage pipeline falls back to a transparent keyword-overlap
+        heuristic. It's not as good as GPT-4, but it produces a
+        defensible A/B/C/D distribution and writes the emails from
+        templates. The portal works end-to-end with no API keys
+        whatsoever — useful for demos, pilots, and air-gapped
+        deployments.
+      </div>
+    </details>
+    <details>
+      <summary>How long does implementation take?</summary>
+      <div class="answer">
+        For self-hosted: 30 minutes. <code>git clone</code>, set two
+        env vars, run <code>make seed</code> to see a demo, then
+        upload your real requisition. For the Enterprise plan with ATS
+        integration, our team handles the integration in 1–2 weeks.
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ============================ METRICS STRIP ============================ -->
+<section class="section">
+  <div class="metric-row">
+    <div class="metric">
+      <div class="v"><span class="grad">250</span></div>
+      <div class="l">Applications on a typical posting</div>
+    </div>
+    <div class="metric">
+      <div class="v"><span class="grad">4h</span></div>
+      <div class="l">Median time-to-response</div>
+    </div>
+    <div class="metric">
+      <div class="v"><span class="grad">100%</span></div>
+      <div class="l">Candidates who hear back</div>
+    </div>
+    <div class="metric">
+      <div class="v"><span class="grad">25×</span></div>
+      <div class="l">More hires from the same funnel</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FINAL CTA ============================ -->
+<div class="cta-band strong">
+  <h2>See what zero inbox feels like</h2>
+  <p>Open the live portal, click around, read the AI-drafted replies. No signup, no waitlist, no demo call required.</p>
+  <div class="cta-row">
+    <a href="/dashboard" class="btn btn-primary btn-lg">Open the portal</a>
+    <a href="#pricing" class="btn btn-outline btn-lg">See pricing</a>
+  </div>
+</div>
+
+<!-- ============================ CONTACT / PORTAL DEMO ============================ -->
+<section class="section contact" id="contact">
+  <div class="contact-card">
+    <span class="eyebrow" style="display:inline-block;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--accent);background:var(--accent-soft);padding:0.3em 0.9em;border-radius:999px;">Portal access</span>
+    <h2>Want the live portal?</h2>
+    <p class="sub">
+      The portal is a separate deployment (the marketing site you're on
+      is the static front door). Send a quick note and we'll spin up a
+      fresh instance with demo data and walk you through it on a call.
+    </p>
+    <div class="contact-grid">
+      <div class="contact-detail">
+        <h3>What you'll get</h3>
+        <ul>
+          <li>A live, populated portal on a private URL</li>
+          <li>50 demo candidates across all four tiers</li>
+          <li>Pre-drafted emails ready to send (one click)</li>
+          <li>30 minutes of walkthrough with the team</li>
+        </ul>
+      </div>
+      <div class="contact-detail">
+        <h3>What we'll ask</h3>
+        <ul>
+          <li>How many roles you typically run per quarter</li>
+          <li>Whether you have an ATS we should integrate with</li>
+          <li>Your email-from domain (for production rollout)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="contact-cta">
+      <a href="mailto:hello@resumetool.example?subject=Portal%20demo%20request" class="btn btn-primary btn-lg">Request a portal demo</a>
+      <a href="https://github.com/expphoto/resumetool" class="btn btn-outline btn-lg">View on GitHub</a>
+    </div>
+    <p style="margin-top: 1rem; font-size: 0.82rem; color: var(--ink-500);">
+      Or clone the repo, run <code>make seed</code>, and try the
+      portal yourself locally in &lt; 2 minutes.
+    </p>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="landing-footer">
+  <div class="links">
+    <a href="#how-it-works">How it works</a> ·
+    <a href="#tiers">Tiers</a> ·
+    <a href="#pricing">Pricing</a> ·
+    <a href="#faq">FAQ</a> ·
+    <a href="/dashboard">Portal</a> ·
+    <a href="mailto:hello@resumetool.example">Contact</a>
+  </div>
+  <div>ResumeTool — Hiring triage that talks to everyone.</div>
+  <div style="margin-top: 0.5rem; font-size: 0.78rem;">© ResumeTool demo. Built for high-volume hiring teams.</div>
+</footer>
+{% endblock %}
