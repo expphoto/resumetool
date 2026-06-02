@@ -102,7 +102,7 @@ def test_landing_unauthed_ok(client):
                    "personas", "testimonials", "compare", "faq"):
         assert needle in r.text, f"missing marketing section: {needle}"
     # Free-pilot panel replaces the old pricing tier section
-    assert "why-free" in r.text or "Why this is free" in r.text
+    assert "Back the project" in r.text or "back it" in r.text
     assert "first" in r.text and "2 companies" in r.text
     # Pilot asks-for / offers-for copy
     assert "What happens next" in r.text
