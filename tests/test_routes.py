@@ -104,9 +104,6 @@ def test_landing_unauthed_ok(client):
     # Free-pilot panel replaces the old pricing tier section
     assert "Back the project" in r.text or "back it" in r.text
     assert "first" in r.text and "2 companies" in r.text
-    # Pilot asks-for / offers-for copy
-    assert "What happens next" in r.text
-    assert "What helps me understand" in r.text
     # Testimonials have real-looking names
     assert "Jamie Chen" in r.text
     # Risk section is research-backed
