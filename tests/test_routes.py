@@ -129,13 +129,23 @@ def test_demo_unauthed_ok(client):
     c, _ = client
     r = c.get("/demo")
     assert r.status_code == 200
-    assert "60" in r.text  # "60 seconds"
-    assert "Start the demo" in r.text or "Start" in r.text
-    # All 6 stages referenced
+    # All 6 funnel stages are present as step cards
     for stage in ("Apply", "Triage", "Screen", "AI Interview", "HR Review", "Hire"):
         assert stage in r.text, f"missing demo stage: {stage}"
+    # Walkthrough is the new intro
+    assert "Walkthrough" in r.text or "play out" in r.text.lower()
+    # Step counter is present
+    assert "Step 1 of 6" in r.text and "Step 6 of 6" in r.text
+    # Key funnel numbers
+    for needle in ("250", "25", "6", "249", "0"):
+        assert needle in r.text, f"missing funnel number: {needle}"
     # Closing promise: nobody left unheard
-    assert "heard back" in r.text.lower() or "heard" in r.text.lower()
+    assert "heard back" in r.text.lower() or "everyone heard back" in r.text.lower()
+    # The auto-advance JS is gone — page is static
+    assert "requestAnimationFrame" not in r.text
+    assert "spawnParticles" not in r.text
+    # Pilot CTA points to USTech.Ninja
+    assert "ustech.ninja" in r.text.lower()
 
 
 def test_dashboard_unauthed_returns_401(client):
