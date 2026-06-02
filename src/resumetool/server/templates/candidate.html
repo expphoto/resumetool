@@ -97,8 +97,42 @@
     <!-- Response email preview -->
     {% if result and result.response_email_body %}
     <div class="card">
-      <div class="card-header">Auto-Generated Response ({{ tier }} tier)</div>
+      <div class="card-header">
+        <span>Auto-Generated Response ({{ tier }} tier)</span>
+        <a href="/dashboard/outbox/{{ app.id }}" class="btn btn-sm btn-secondary">Open in Outbox →</a>
+      </div>
       <div style="font-size:0.88rem;white-space:pre-wrap;color:#495057;background:#f8f9fa;padding:1rem;border-radius:6px;">{{ result.response_email_body }}</div>
+      {% if result.response_sent_at %}
+        <p style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--ok);">
+          ✓ Sent on {{ result.response_sent_at.strftime("%b %d, %Y at %H:%M") }} UTC
+        </p>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if email_events %}
+    <div class="card">
+      <div class="card-header">Email Send Log</div>
+      <table>
+        <thead>
+          <tr>
+            <th>When</th>
+            <th>Status</th>
+            <th>Provider</th>
+            <th>Error</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in email_events %}
+            <tr>
+              <td style="font-size: 0.85rem;">{{ e.created_at.strftime("%Y-%m-%d %H:%M") if e.created_at else "—" }}</td>
+              <td><span class="badge badge-{{ e.status.value if e.status.value else e.status }}">{{ e.status.value if e.status.value else e.status }}</span></td>
+              <td style="font-size: 0.85rem;">{{ e.provider or "—" }}</td>
+              <td style="font-size: 0.82rem; color: var(--danger);">{{ e.error_message or "—" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
     {% endif %}
 

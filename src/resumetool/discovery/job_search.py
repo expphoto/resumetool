@@ -1,9 +1,7 @@
 """Job discovery and search functionality."""
 import hashlib
-import time
 from datetime import datetime, timedelta
-from typing import List, Optional, Dict, Any
-from urllib.parse import quote
+from typing import List, Optional
 
 import requests
 from bs4 import BeautifulSoup

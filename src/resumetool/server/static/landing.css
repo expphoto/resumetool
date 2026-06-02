@@ -584,55 +584,110 @@ footer.landing-footer {
 .compare th.us { background: var(--accent-soft); color: var(--accent); }
 
 /* ==========================================================================
-   Pricing
+   Why-free / pilot program
    ========================================================================== */
-.pricing {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.25rem;
-  max-width: 1100px;
-  margin: 2rem auto 0;
-  align-items: stretch;
+.pilot {
+  background:
+    radial-gradient(700px 320px at 50% 0%, rgba(16,185,129,0.07), transparent 70%),
+    var(--bg);
+  border-top: 1px solid var(--ink-200);
+  border-bottom: 1px solid var(--ink-200);
 }
-.plan {
+.pilot .sub {
+  max-width: 70ch;
+}
+.pilot .sub strong { color: var(--ink-900); }
+.pilot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 2.5rem auto 0;
+}
+.pilot-card {
   background: var(--bg-elev);
   border: 1px solid var(--ink-200);
   border-radius: var(--radius-lg);
-  padding: 1.75rem;
-  display: flex; flex-direction: column;
+  padding: 1.75rem 1.5rem;
   position: relative;
 }
-.plan.featured {
-  border: 2px solid var(--accent);
-  box-shadow: 0 8px 32px rgba(99,102,241,0.18);
-  transform: translateY(-4px);
+.pilot-card h3 {
+  font-size: 1.1rem;
+  margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--ink-900);
 }
-.plan.featured::before {
-  content: "Most popular";
-  position: absolute;
-  top: -0.7rem; left: 50%; transform: translateX(-50%);
-  background: var(--accent);
-  color: #fff;
-  font-size: 0.7rem;
+.pilot-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem; height: 1.6rem;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--accent);
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.2em 0.8em;
-  border-radius: 999px;
+  font-size: 0.95rem;
+  flex-shrink: 0;
 }
-.plan h3 { margin: 0 0 0.4rem; font-size: 1.15rem; }
-.plan .tag { color: var(--ink-500); font-size: 0.85rem; margin: 0 0 1.1rem; }
-.plan .price { display: flex; align-items: baseline; gap: 0.3rem; margin-bottom: 1rem; }
-.plan .price .num { font-size: 2.4rem; font-weight: 700; letter-spacing: -0.03em; color: var(--ink-900); }
-.plan .price .per { color: var(--ink-500); font-size: 0.9rem; }
-.plan ul { list-style: none; padding: 0; margin: 0 0 1.5rem; flex: 1; }
-.plan ul li { padding: 0.4rem 0; font-size: 0.92rem; color: var(--ink-700); display: flex; gap: 0.5rem; align-items: flex-start; }
-.plan ul li::before { content: "\2713"; color: #10b981; font-weight: 700; flex-shrink: 0; }
-.plan .btn { width: 100%; text-align: center; }
-.plan.featured .btn-primary {
-  background: linear-gradient(135deg, #6366f1, #06b6d4);
-  border: 0;
+.pilot-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
+.pilot-card ul li {
+  padding: 0.55rem 0 0.55rem 1.4rem;
+  position: relative;
+  font-size: 0.92rem;
+  color: var(--ink-700);
+  line-height: 1.55;
+  border-bottom: 1px dashed var(--ink-200);
+}
+.pilot-card ul li:last-child { border-bottom: none; }
+.pilot-card ul li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+.pilot-card ul li strong { color: var(--ink-900); }
+.pilot-cta {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2.5rem;
+}
+.pilot-note {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--ink-500);
+}
+.pilot-note code {
+  background: var(--ink-100);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+  color: var(--ink-900);
+}
+.hero-pilot {
+  font-size: 0.95rem;
+  color: var(--ink-700);
+  max-width: 60ch;
+  margin: 1.5rem auto 0;
+  padding: 0.85rem 1.1rem;
+  background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(99,102,241,0.06));
+  border: 1px solid rgba(16,185,129,0.25);
+  border-radius: var(--radius);
+  text-align: left;
+  line-height: 1.55;
+}
+.hero-pilot strong { color: #047857; }
+.hero-pilot a { color: var(--accent); font-weight: 600; }
 
 /* ==========================================================================
    FAQ

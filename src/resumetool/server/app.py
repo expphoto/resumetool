@@ -9,7 +9,9 @@ from fastapi.staticfiles import StaticFiles
 from resumetool.config import settings
 from resumetool.database.models import Base
 from resumetool.database.session import engine
-from resumetool.server.routes import candidates, dashboard, feedback, jobs, screening
+from resumetool.server.routes import (
+    candidates, dashboard, feedback, jobs, landing, screening,
+)
 
 
 @asynccontextmanager
@@ -48,7 +50,8 @@ def require_hr_auth(credentials: HTTPBasicCredentials = Depends(_security)):
     return credentials.username
 
 
-# Public endpoints (no auth): screening form
+# Public endpoints (no auth): public landing page + screening form
+app.include_router(landing.router)
 app.include_router(screening.router)
 
 # Authenticated: API + dashboard
@@ -57,10 +60,7 @@ app.include_router(candidates.router, dependencies=[Depends(require_hr_auth)])
 app.include_router(feedback.router, dependencies=[Depends(require_hr_auth)])
 app.include_router(dashboard.router, dependencies=[Depends(require_hr_auth)])
 
-try:
-    app.mount("/static", StaticFiles(directory="src/resumetool/server/static"), name="static")
-except Exception:
-    pass
+app.mount("/static", StaticFiles(directory="src/resumetool/server/static"), name="static")
 
 
 @app.get("/health")

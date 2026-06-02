@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Email — {{ candidate.name or candidate.email }} — Outbox{% endblock %}
+
+{% block content %}
+<a href="/dashboard/outbox{% if req %}?req_id={{ req.id }}{% endif %}" class="muted" style="font-size: 0.85rem;">
+  ← Back to outbox{% if req %} — {{ req.title }}{% endif %}
+</a>
+
+<div class="row" style="margin: 0.5rem 0 1rem;">
+  <h1 style="flex:1;">
+    Response email
+    <span class="badge badge-{{ tier }}" style="font-size: 0.7rem; vertical-align: middle; margin-left: 0.5rem;">
+      Tier {{ tier }}
+    </span>
+  </h1>
+  <a href="/dashboard/candidates/{{ app.id }}" class="btn btn-ghost">Candidate detail →</a>
+</div>
+
+{% if flash %}
+  <div class="flash flash-{{ flash.kind|default('info') }}">{{ flash.message }}</div>
+{% endif %}
+
+<div class="layout" style="align-items: flex-start;">
+  <div class="grow">
+    <!-- Email preview -->
+    <div class="email-preview">
+      <div class="email-meta">
+        <div class="row"><span class="label" style="min-width:80px;color:var(--ink-500);font-weight:600;">To</span><span>{{ candidate.email }}</span></div>
+        <div class="row"><span class="label" style="min-width:80px;color:var(--ink-500);font-weight:600;">From</span><span class="muted">hiring@example.com (or your configured sender)</span></div>
+        <div class="row"><span class="label" style="min-width:80px;color:var(--ink-500);font-weight:600;">Subject</span><strong>{{ subject }}</strong></div>
+      </div>
+      <div class="email-body">{{ body }}</div>
+    </div>
+
+    <!-- Send action -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Send</h2>
+        <span class="muted">
+          {% if service_mode == "dry_run" %}
+            Will be marked as <strong>dry_run</strong> — no real email sent
+          {% elif service_mode == "console" %}
+            Will be printed to server logs
+          {% else %}
+            Real delivery via <strong>{{ service_mode }}</strong>
+          {% endif %}
+        </span>
+      </div>
+      <button type="button" class="btn btn-primary btn-lg" id="send-now-btn">
+        Send this email now →
+      </button>
+    </div>
+  </div>
+
+  <!-- Sidebar: send log + candidate -->
+  <aside style="width: 280px; flex-shrink: 0;">
+    <div class="card card-tight">
+      <h2 style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-500); margin-bottom: 0.6rem;">Candidate</h2>
+      <div style="font-weight: 600;">{{ candidate.name or "(no name)" }}</div>
+      <div class="muted" style="font-size: 0.85rem;">{{ candidate.email }}</div>
+      {% if candidate.phone %}<div class="muted" style="font-size: 0.85rem;">{{ candidate.phone }}</div>{% endif %}
+    </div>
+
+    <div class="card card-tight">
+      <h2 style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-500); margin-bottom: 0.6rem;">Send log</h2>
+      {% if events %}
+        <div class="stack-tight">
+          {% for e in events %}
+            <div style="padding: 0.5rem 0; border-bottom: 1px solid var(--ink-100);">
+              <div class="row-between" style="margin-bottom: 0.2rem;">
+                <span class="badge badge-{{ e.status.value if e.status.value else e.status }}">{{ e.status.value if e.status.value else e.status }}</span>
+                <span class="muted" style="font-size: 0.78rem;">
+                  {{ e.created_at.strftime("%b %d %H:%M") if e.created_at else "—" }}
+                </span>
+              </div>
+              {% if e.provider %}<div class="muted" style="font-size: 0.78rem;">via {{ e.provider }}</div>{% endif %}
+              {% if e.error_message %}<div style="color: var(--danger); font-size: 0.78rem; margin-top: 0.2rem;">{{ e.error_message }}</div>{% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="muted" style="font-size: 0.85rem; margin: 0;">No send attempts yet.</p>
+      {% endif %}
+    </div>
+  </aside>
+</div>
+
+<script>
+  document.getElementById("send-now-btn").addEventListener("click", async () => {
+    const btn = document.getElementById("send-now-btn");
+    btn.disabled = true;
+    btn.textContent = "Sending…";
+    const r = await fetch("/dashboard/outbox/{{ app.id }}/send", {method: "POST"});
+    const data = await r.json();
+    if (data.error) {
+      alert("Send failed: " + data.error);
+      btn.disabled = false;
+      btn.textContent = "Send this email now →";
+    } else {
+      alert(
+        `Email ${data.status}` +
+        (data.provider ? ` via ${data.provider}` : "") +
+        (data.error ? `\nError: ${data.error}` : "")
+      );
+      location.reload();
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Outbox — ResumeTool{% endblock %}
+
+{% block content %}
+{% set flash = flash or none %}
+
+<div class="row" style="margin-bottom: 0.5rem;">
+  <h1 style="flex:1;">Outbox {% if selected_req %}— {{ selected_req.title }}{% endif %}</h1>
+  <div class="row" style="gap: 0.5rem;">
+    <a href="/dashboard{% if req_id %}?req_id={{ req_id }}{% endif %}" class="btn btn-ghost">← Back to dashboard</a>
+    <button type="button" class="btn btn-primary" id="bulk-send-btn"
+            data-req-id="{{ req_id or '' }}"
+            data-tier="{{ tier_filter or '' }}">
+      {% if service_mode == "dry_run" %}
+        Run dry-run send
+      {% elif service_mode == "console" %}
+        Send via console
+      {% else %}
+        Send via {{ service_mode }}
+      {% endif %}
+    </button>
+  </div>
+</div>
+
+{% if service_mode == "dry_run" %}
+  <div class="flash flash-info">
+    <strong>Dry-run mode:</strong> Sends will be logged and marked as <code>dry_run</code> — no real emails leave the system. Set <code>RESUMETOOL_EMAIL_API_KEY</code> in your environment to enable real delivery via Resend.
+  </div>
+{% elif service_mode == "console" %}
+  <div class="flash flash-info">
+    <strong>Console mode:</strong> No <code>RESUMETOOL_EMAIL_API_KEY</code> set. Emails will be printed to server logs. Set the key to enable real delivery.
+  </div>
+{% endif %}
+
+{% if flash %}
+  <div class="flash flash-{{ flash.kind|default('info') }}">{{ flash.message }}</div>
+{% endif %}
+
+<!-- Per-tier sections -->
+{% for tier_letter, tier_label in [("A","Interview-ready"), ("B","Hold pool"), ("C","Polite decline + feedback"), ("D","Brief decline")] %}
+  {% set rows = by_tier.get(tier_letter, []) %}
+  <div class="card" style="margin-bottom: 1rem;">
+    <div class="card-header">
+      <div class="row" style="gap: 0.6rem;">
+        <span class="badge badge-{{ tier_letter }}">Tier {{ tier_letter }}</span>
+        <h2 style="margin: 0;">{{ tier_label }}</h2>
+      </div>
+      <div class="row" style="gap: 0.6rem;">
+        <span class="muted">{{ rows|length }} email{{ "" if rows|length == 1 else "s" }}</span>
+        {% if rows %}
+          <button type="button" class="btn btn-sm btn-secondary tier-send-btn"
+                  data-tier="{{ tier_letter }}" data-req-id="{{ req_id or '' }}">
+            Send Tier {{ tier_letter }} →
+          </button>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if rows %}
+      <table>
+        <thead>
+          <tr>
+            <th>Candidate</th>
+            <th>Subject</th>
+            <th style="width: 130px;">Preview</th>
+            <th style="width: 130px;">Status</th>
+            <th style="width: 140px;">Sent</th>
+            <th style="width: 90px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rows %}
+            <tr>
+              <td>
+                <a href="/dashboard/candidates/{{ r.application_id }}" style="font-weight: 500;">{{ r.candidate_name }}</a>
+                <div class="muted" style="font-size: 0.78rem;">{{ r.candidate_email }}</div>
+              </td>
+              <td style="font-size: 0.88rem;">{{ r.subject }}</td>
+              <td class="muted" style="font-size: 0.82rem;">{{ r.body_preview }}…</td>
+              <td>
+                {% if r.email_status %}
+                  <span class="badge badge-{{ r.email_status }}">{{ r.email_status }}</span>
+                {% else %}
+                  <span class="badge badge-queued">queued</span>
+                {% endif %}
+              </td>
+              <td class="muted" style="font-size: 0.82rem;">
+                {% if r.sent_at %}{{ r.sent_at.strftime("%b %d, %H:%M") }}{% else %}—{% endif %}
+              </td>
+              <td>
+                <a href="/dashboard/outbox/{{ r.application_id }}" class="btn btn-sm btn-secondary">Open</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="empty" style="padding: 1.25rem 0.5rem;">
+        <p style="margin: 0;">No emails to send for this tier yet.</p>
+      </div>
+    {% endif %}
+  </div>
+{% endfor %}
+
+{% if by_tier|length == 0 %}
+  <div class="card empty">
+    <h3>No triaged candidates in scope</h3>
+    <p>Once applications are triaged, their AI-drafted response emails will appear here, grouped by tier.</p>
+    <a href="/dashboard" class="btn btn-secondary">Back to dashboard</a>
+  </div>
+{% endif %}
+
+<script>
+  async function bulkSend({reqId = "", tier = ""} = {}) {
+    const params = new URLSearchParams();
+    if (reqId) params.set("req_id", reqId);
+    if (tier)  params.set("tier", tier);
+    const r = await fetch("/dashboard/outbox/bulk-send?" + params.toString(), {method: "POST"});
+    const data = await r.json();
+    if (data.error) {
+      alert("Send failed: " + data.error);
+    } else {
+      alert(
+        `Processed ${data.processed}\n` +
+        `Sent: ${data.sent}\n` +
+        `Dry-run: ${data.dry_run}\n` +
+        `Failed: ${data.failed}`
+      );
+      location.reload();
+    }
+  }
+  document.getElementById("bulk-send-btn").addEventListener("click", () => {
+    const btn = document.getElementById("bulk-send-btn");
+    bulkSend({reqId: btn.dataset.reqId, tier: btn.dataset.tier});
+  });
+  document.querySelectorAll(".tier-send-btn").forEach(btn => {
+    btn.addEventListener("click", () => bulkSend({reqId: btn.dataset.reqId, tier: btn.dataset.tier}));
+  });
+</script>
+{% endblock %}

@@ -141,39 +141,63 @@ class ResumeParser:
     def _extract_summary(self, text: str) -> Optional[str]:
         """Extract professional summary or objective."""
         summary_keywords = ['summary', 'objective', 'profile', 'about']
-        lines = text.lower().split('\n')
-        
-        for i, line in enumerate(lines):
-            if any(keyword in line for keyword in summary_keywords):
-                # Get next few lines as summary
-                summary_lines = []
-                for j in range(i + 1, min(i + 6, len(lines))):
-                    if lines[j].strip() and not any(
-                        section in lines[j] for section in ['experience', 'education', 'skills']
-                    ):
-                        summary_lines.append(text.split('\n')[j].strip())
-                    else:
-                        break
-                
-                if summary_lines:
-                    return ' '.join(summary_lines)
-        
+        original_lines = text.split('\n')
+        lower_lines = [line.lower() for line in original_lines]
+
+        def _is_decorative(s: str) -> bool:
+            s = s.strip()
+            return bool(s) and all(c in "-=*_~" for c in s)
+
+        for i, line in enumerate(lower_lines):
+            stripped = line.strip().lstrip('*#').strip()
+            if not any(
+                stripped == kw or stripped.startswith(kw + ':') or stripped.startswith(kw + ' ')
+                for kw in summary_keywords
+            ):
+                continue
+            # Get next few non-decorative, non-header lines as summary
+            summary_lines = []
+            for j in range(i + 1, min(i + 6, len(original_lines))):
+                raw = original_lines[j].strip()
+                if not raw:
+                    continue
+                if _is_decorative(raw):
+                    continue
+                low = lower_lines[j]
+                if any(
+                    low == sec or low.startswith(sec + ':') or low.startswith(sec + ' ')
+                    for sec in ['experience', 'education', 'skills', 'projects', 'certifications']
+                ):
+                    break
+                summary_lines.append(raw)
+
+            if summary_lines:
+                return ' '.join(summary_lines)
+
         return None
     
     def _extract_skills(self, text: str) -> list[Skill]:
         """Extract skills from resume text."""
         # Common skill categories and keywords
         skill_categories = {
-            'programming': ['python', 'javascript', 'java', 'c++', 'react', 'angular', 'vue'],
-            'databases': ['sql', 'mysql', 'postgresql', 'mongodb', 'redis'],
-            'cloud': ['aws', 'azure', 'gcp', 'docker', 'kubernetes'],
+            'programming': [
+                'python', 'javascript', 'typescript', 'java', 'c++', 'c#', 'go', 'golang',
+                'rust', 'ruby', 'php', 'swift', 'kotlin', 'react', 'angular', 'vue',
+                'node', 'django', 'flask', 'fastapi', 'spring', 'grpc', 'graphql',
+            ],
+            'databases': ['sql', 'mysql', 'postgresql', 'mongodb', 'redis', 'dynamodb', 'elasticsearch'],
+            'cloud': [
+                'aws', 'azure', 'gcp', 'docker', 'kubernetes', 'k8s', 'helm', 'terraform',
+                'ansible', 'jenkins', 'github actions', 'circleci', 'istio', 'linkerd',
+                'ec2', 'eks', 's3', 'lambda', 'vpc', 'iam', 'cloudformation', 'sre',
+            ],
+            'data': ['pandas', 'numpy', 'spark', 'hadoop', 'kafka', 'airflow', 'dbt', 'snowflake'],
             'design': ['photoshop', 'illustrator', 'figma', 'sketch'],
             'project_management': ['agile', 'scrum', 'jira', 'confluence'],
         }
         
         skills = []
-        text_lower = text.lower()
-        
+
         # Look for skills section
         skills_section = self._find_section(text, ['skills', 'technical skills', 'technologies'])
         
@@ -204,31 +228,51 @@ class ResumeParser:
     def _extract_experience(self, text: str) -> list[Experience]:
         """Extract work experience from resume text."""
         experience_section = self._find_section(text, ['experience', 'work experience', 'employment'])
-        
+
+        # Drop decorative separator lines (e.g. "------")
+        def _is_decorative(s: str) -> bool:
+            s = s.strip()
+            return bool(s) and all(c in "-=*_~" for c in s)
+
         if not experience_section:
+            # Fallback: if no Experience header, look for indented "- " bullet
+            # lines anywhere in the document — common in DOCX exports.
+            bullet_lines = [
+                ln[2:].strip() if ln.strip().startswith("- ") else ln.strip()
+                for ln in text.split('\n')
+                if ln.strip().startswith("- ")
+            ]
+            if bullet_lines:
+                return [Experience(
+                    title="Experience",
+                    company="",
+                    duration="",
+                    description="\n".join(bullet_lines),
+                )]
             return []
-        
+
         # Simple extraction - could be enhanced with more sophisticated parsing
         experiences = []
-        
+
         # Split by common patterns that indicate new job entries
         job_entries = re.split(r'\n(?=[A-Z][^a-z]*\n)', experience_section)
-        
+
         for entry in job_entries[:5]:  # Limit to 5 most recent
             lines = [line.strip() for line in entry.split('\n') if line.strip()]
+            lines = [line for line in lines if not _is_decorative(line)]
             if len(lines) >= 2:
                 # First line is often title/company
                 title_company = lines[0]
                 duration = lines[1] if len(lines) > 1 else "Unknown duration"
                 description = ' '.join(lines[2:]) if len(lines) > 2 else ""
-                
+
                 # Try to separate title and company
                 if ' at ' in title_company:
                     title, company = title_company.split(' at ', 1)
                 else:
                     title = title_company
                     company = "Unknown company"
-                
+
                 experiences.append(Experience(
                     title=title.strip(),
                     company=company.strip(),
@@ -261,27 +305,65 @@ class ResumeParser:
         return cert_lines[:10]  # Limit to 10 certs
     
     def _find_section(self, text: str, keywords: list[str]) -> Optional[str]:
-        """Find a section in the resume text by keywords."""
+        """Find a section in the resume text by keywords.
+
+        Returns the section's text including any inline content on the
+        header line (e.g. ``Skills: Python, Go, AWS``).
+
+        A keyword is treated as a section header only when the line
+        starts with the keyword (allowing a leading label like ``**``,
+        whitespace, or a ``#`` markdown prefix) — not when it appears
+        inside running prose such as ``"Experienced engineer"``.
+        """
+
         lines = text.split('\n')
-        
+        stop_headers = [
+            'experience', 'education', 'skills', 'projects',
+            'certifications', 'summary', 'cover letter',
+        ]
+        # Sort longer keywords first to avoid "skills" matching "technical skills"
+        sorted_keywords = sorted(keywords, key=lambda k: -len(k))
+        sorted_stop = sorted(stop_headers, key=lambda k: -len(k))
+
+        def _is_header_line(raw_line: str, kws: list[str]) -> str | None:
+            """Return the matching keyword if `raw_line` is a section header."""
+            stripped = raw_line.strip().lstrip('*#').strip()
+            lower = stripped.lower()
+            for kw in kws:
+                kw_l = kw.lower()
+                if lower == kw_l:
+                    return kw
+                if lower.startswith(kw_l + ':') or lower.startswith(kw_l + ' '):
+                    return kw
+            return None
+
         for i, line in enumerate(lines):
-            line_lower = line.lower().strip()
-            if any(keyword.lower() in line_lower for keyword in keywords):
-                # Found section header, extract content until next section
-                section_lines = []
-                for j in range(i + 1, len(lines)):
-                    next_line = lines[j].strip()
-                    # Stop if we hit another section header
-                    if (next_line and 
-                        any(section in next_line.lower() for section in 
-                            ['experience', 'education', 'skills', 'projects', 'certifications']) and
-                        next_line != lines[i]):
-                        break
-                    if next_line:
-                        section_lines.append(next_line)
-                
-                return '\n'.join(section_lines) if section_lines else None
-        
+            matched = _is_header_line(line, sorted_keywords)
+            if not matched:
+                continue
+            section_lines = []
+            # Pull inline content off the header line
+            header_stripped = line.strip().lstrip('*#').strip()
+            idx = header_stripped.lower().find(matched.lower())
+            if idx >= 0:
+                inline = header_stripped[idx + len(matched):].lstrip(" :\t-")
+                if inline:
+                    section_lines.append(inline)
+
+            # Walk forward until we hit another section header
+            for j in range(i + 1, len(lines)):
+                next_line = lines[j].strip()
+                if not next_line:
+                    continue
+                stop_match = _is_header_line(next_line, sorted_stop)
+                if stop_match and stop_match.lower() != matched.lower():
+                    break
+                section_lines.append(next_line)
+
+            if section_lines:
+                return '\n'.join(section_lines)
+            return None
+
         return None
     
     def _determine_skill_level(self, skill: str, text: str) -> SkillLevel:

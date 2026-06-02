@@ -1,93 +1,151 @@
 {% extends "base.html" %}
-{% block title %}HR Dashboard — Triage{% endblock %}
+{% block title %}Dashboard — ResumeTool{% endblock %}
 
 {% block content %}
-<div style="display:flex;gap:2rem;align-items:flex-start;">
+<div class="row" style="margin-bottom: 0.5rem;">
+  <h1 style="flex:1;">{% if selected_req %}{{ selected_req.title }}{% else %}Hiring Dashboard{% endif %}</h1>
+  <a href="/dashboard/outbox{% if req_id %}?req_id={{ req_id }}{% endif %}" class="btn btn-primary">
+    Open Outbox →
+  </a>
+</div>
+
+<div class="layout">
 
   <!-- Sidebar: job requisitions -->
-  <div style="width:240px;flex-shrink:0;">
-    <div class="card">
-      <div class="card-header">Open Roles</div>
+  <aside class="sidebar">
+    <div class="card card-tight">
+      <h2 style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-500); margin-bottom: 0.6rem;">
+        Open Roles
+      </h2>
       {% for req in requisitions %}
-      <div style="margin-bottom:0.5rem;">
-        <a href="/?req_id={{ req.id }}" style="font-size:0.9rem;{% if req_id == req.id %}font-weight:700;color:#212529;{% endif %}">
+        <a href="/dashboard?req_id={{ req.id }}" class="req-link {% if req_id == req.id %}active{% endif %}">
           {{ req.title }}
         </a>
-      </div>
       {% else %}
-      <p style="font-size:0.85rem;color:#6c757d;">No open roles.</p>
+        <div class="empty" style="padding: 1rem;">
+          <p style="margin: 0;">No open roles yet.</p>
+        </div>
       {% endfor %}
     </div>
-  </div>
+  </aside>
 
-  <!-- Main: candidate table -->
-  <div style="flex:1;min-width:0;">
+  <!-- Main: candidate list -->
+  <div class="grow">
+
     {% if selected_req %}
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-      <div>
-        <h1 style="font-size:1.3rem;font-weight:700;">{{ selected_req.title }}</h1>
-        <p style="color:#6c757d;font-size:0.85rem;margin-top:0.2rem;">{{ candidates|length }} candidates triaged</p>
+      {% set tier_counts = {} %}
+      {% for c in candidates %}
+        {% set _ = tier_counts.update({c.tier: tier_counts.get(c.tier, 0) + 1}) %}
+      {% endfor %}
+
+      <!-- Tier funnel widget -->
+      <div class="funnel">
+        {% for tier_letter, tier_label in [("A","Interview"), ("B","Hold"), ("C","Decline +"), ("D","Decline")] %}
+          {% set count = tier_counts.get(tier_letter, 0) %}
+          {% set pct = (count / candidates|length * 100) if candidates|length else 0 %}
+          <div class="funnel-step {{ tier_letter }}">
+            <div class="label">Tier {{ tier_letter }} · {{ tier_label }}</div>
+            <div class="value">{{ count }}</div>
+            <div class="pct">{{ "%.0f"|format(pct) }}% of triaged</div>
+            <div class="bar score-bar-wrap">
+              <div class="score-bar" style="width: {{ pct|round(0, 'floor') }}%;"></div>
+            </div>
+          </div>
+        {% endfor %}
       </div>
-    </div>
 
-    {% if candidates %}
-    <div class="card" style="padding:0;overflow:hidden;">
-      <table>
-        <thead>
-          <tr>
-            <th>Tier</th>
-            <th>Candidate</th>
-            <th>Score</th>
-            <th>Resume</th>
-            <th>Screen</th>
-            <th>Behavioral</th>
-            <th>Screen Status</th>
-            <th>Decision</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for c in candidates %}
-          <tr>
-            <td><span class="badge badge-{{ c.tier }}">{{ c.tier }}</span></td>
-            <td>
-              <a href="/candidates/{{ c.application_id }}" style="font-weight:500;">{{ c.name }}</a>
-              <div style="font-size:0.78rem;color:#6c757d;">{{ c.email }}</div>
-            </td>
-            <td>
-              <div style="font-size:0.9rem;font-weight:600;">{{ "%.0f"|format(c.composite_score * 100) }}%</div>
-              {% set pct = (c.composite_score * 100)|int %}
-              <div class="score-bar-wrap" style="margin-top:3px;">
-                <div class="score-bar {% if pct >= 65 %}high{% elif pct >= 45 %}mid{% else %}low{% endif %}" style="width:{{ pct }}%;"></div>
-              </div>
-            </td>
-            <td>{{ "%.0f%%"|format((c.stage1_score or 0) * 100) }}</td>
-            <td>{{ "%.0f%%"|format((c.stage2_score or 0) * 100) if c.stage2_score else "—" }}</td>
-            <td>{{ "%.0f%%"|format((c.behavioral_score or 0) * 100) }}</td>
-            <td><span class="badge badge-{{ c.screen_status }}">{{ c.screen_status }}</span></td>
-            <td>
-              {% if c.hm_decision %}
-                <span class="badge {% if c.hm_decision == 'interview' %}badge-A{% elif c.hm_decision == 'hold' %}badge-B{% else %}badge-D{% endif %}">
-                  {{ c.hm_decision }}
-                </span>
-              {% else %}
-                <a href="/candidates/{{ c.application_id }}" class="btn btn-primary" style="font-size:0.78rem;padding:0.25rem 0.6rem;">Review</a>
-              {% endif %}
-            </td>
-          </tr>
+      <div class="row" style="margin: 1.25rem 0;">
+        <h2 style="flex:1; margin:0;">{{ candidates|length }} candidates</h2>
+        <div class="row" style="gap: 0.4rem;">
+          <a href="/dashboard?req_id={{ req_id }}" class="btn btn-sm {% if not tier_filter %}btn-primary{% else %}btn-ghost{% endif %}">All</a>
+          {% for t in ["A", "B", "C", "D"] %}
+            <a href="/dashboard?req_id={{ req_id }}&tier={{ t }}"
+               class="btn btn-sm {% if tier_filter == t %}btn-primary{% else %}btn-ghost{% endif %}">
+              Tier {{ t }}
+            </a>
           {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <div class="card">
-      <p style="color:#6c757d;">No candidates have been triaged for this role yet.</p>
-    </div>
-    {% endif %}
+        </div>
+      </div>
+
+      {% if candidates %}
+        <div class="card card-padless">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 60px;">Tier</th>
+                <th>Candidate</th>
+                <th style="width: 140px;">Score</th>
+                <th style="width: 90px;">Resume</th>
+                <th style="width: 90px;">Screen</th>
+                <th style="width: 90px;">Behavior</th>
+                <th style="width: 110px;">Screen</th>
+                <th style="width: 110px;">Replied?</th>
+                <th style="width: 130px;">Decision</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in candidates %}
+                <tr>
+                  <td><span class="badge badge-{{ c.tier }}">Tier {{ c.tier }}</span></td>
+                  <td>
+                    <a href="/dashboard/candidates/{{ c.application_id }}" style="font-weight: 500;">{{ c.name }}</a>
+                    <div class="muted" style="font-size: 0.78rem;">{{ c.email }}</div>
+                  </td>
+                  <td>
+                    <div style="font-size: 0.92rem; font-weight: 600;">
+                      {{ "%.0f"|format(c.composite_score * 100) }}%
+                    </div>
+                    {% set pct = (c.composite_score * 100)|int %}
+                    <div class="score-bar-wrap" style="margin-top: 3px;">
+                      <div class="score-bar {% if pct >= 65 %}high{% elif pct >= 45 %}mid{% else %}low{% endif %}"
+                           style="width: {{ pct }}%;"></div>
+                    </div>
+                  </td>
+                  <td>{{ "%.0f%%"|format((c.stage1_score or 0) * 100) }}</td>
+                  <td>
+                    {% if c.stage2_score %}
+                      {{ "%.0f%%"|format(c.stage2_score * 100) }}
+                    {% else %}
+                      <span class="muted">—</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ "%.0f%%"|format((c.behavioral_score or 0) * 100) }}</td>
+                  <td>
+                    <span class="badge badge-{{ c.screen_status }}">{{ c.screen_status }}</span>
+                  </td>
+                  <td>
+                    {% if c.response_sent_at %}
+                      <span class="badge badge-sent">sent</span>
+                    {% else %}
+                      <span class="badge badge-pending">queued</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if c.hm_decision %}
+                      <span class="badge badge-{{ c.hm_decision }}">{{ c.hm_decision }}</span>
+                    {% else %}
+                      <a href="/dashboard/candidates/{{ c.application_id }}"
+                         class="btn btn-primary btn-sm">Review</a>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="card empty">
+          <h3>No candidates here yet</h3>
+          <p>{% if tier_filter %}No Tier {{ tier_filter }} candidates for this role.{% else %}Applications will appear here as soon as they come in.{% endif %}</p>
+          <a href="/dashboard?req_id={{ req_id }}" class="btn btn-secondary">Show all tiers</a>
+        </div>
+      {% endif %}
 
     {% else %}
-    <div class="card" style="text-align:center;padding:3rem;">
-      <p style="color:#6c757d;font-size:1rem;">Select a role from the sidebar to view candidates.</p>
-    </div>
+      <div class="card empty">
+        <h3>Pick a role to start</h3>
+        <p>Select an opening from the left to see the AI triaged candidate list and the auto-generated response queue.</p>
+      </div>
     {% endif %}
   </div>
 </div>

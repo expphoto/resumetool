@@ -116,12 +116,19 @@ class JobExperience(BaseModel):
 
 
 class Resume(BaseModel):
-    """Legacy resume type."""
+    """Structured resume used by the tailoring pipeline.
+
+    ``contact_info_redacted`` defaults to True so PII stays out of any LLM
+    call by default. Set it to False only when redaction has already been
+    applied or the caller has explicit consent to send contact data.
+    """
     full_name: Optional[str] = Field(default=None, description="May be redacted.")
     contact_info_redacted: bool = True
     summary: Optional[str] = None
     skills: List[str] = []
     experience: List[JobExperience] = []
+    education: List[str] = []
+    certifications: List[str] = []
 
 
 class JobDescription(BaseModel):

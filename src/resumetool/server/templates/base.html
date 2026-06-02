@@ -11,7 +11,7 @@
 </head>
 <body class="{% block body_class %}portal{% endblock %}">
   <nav class="nav {% block nav_class %}{% endblock %}">
-    <a href="/" class="nav-brand">
+    <a href="{{ brand_url | default('/') }}" class="nav-brand">
       <span class="logo">R</span>
       ResumeTool
     </a>

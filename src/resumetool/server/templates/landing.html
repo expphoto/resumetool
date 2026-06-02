@@ -14,7 +14,7 @@
   <a href="#faq">FAQ</a>
 {% endblock %}
 {% block nav_user %}
-  <a href="/dashboard" class="cta">Open Portal →</a>
+  <a href="/#contact" class="cta">Claim a free pilot →</a>
 {% endblock %}
 
 {% block content %}
@@ -29,11 +29,13 @@
     hears back, usually within hours.
   </p>
   <div class="cta-row">
-    <a href="/dashboard" class="btn btn-primary btn-lg">Open the live portal</a>
+    <a href="/#contact" class="btn btn-primary btn-lg">Claim a free pilot</a>
     <a href="/demo" class="btn btn-outline btn-lg">▶ Watch the guided demo</a>
   </div>
-  <p class="hero-foot">
-    Free demo data included. No credit card. No signup.
+  <p class="hero-foot hero-pilot">
+    <strong>Free for the first 2 companies</strong> that grab it — no trial,
+    no credit card, no charge today, no plan to charge for at least 6 months.
+    <a href="#why-free">Why I'm giving this away →</a>
   </p>
 </section>
 
@@ -493,61 +495,57 @@
   </div>
 </section>
 
-<!-- ============================ PRICING ============================ -->
-<section class="section" id="pricing">
-  <h2>Simple, predictable pricing</h2>
-  <p class="sub">Pay for what you hire. No per-resume metering.</p>
-  <div class="pricing">
-    <div class="plan">
-      <h3>Starter</h3>
-      <p class="tag">For solo recruiters &amp; small teams</p>
-      <div class="price">
-        <span class="num">$0</span>
-        <span class="per">/ month</span>
-      </div>
+<!-- ============================ WHY FREE / PILOT PROGRAM ============================ -->
+<section class="section pilot" id="why-free">
+  <h2>Why this is free</h2>
+  <p class="sub">
+    The 99% of candidates who get ghosted every year shouldn't be. Hiring
+    teams drowning in 250 resumes shouldn't have to choose between speed
+    and fairness. And the keyword ATS — which optimizes for resume
+    formatting instead of job fit — shouldn't be the only thing standing
+    between a great candidate and the shortlist.
+  </p>
+  <p class="sub">
+    I'm building ResumeTool because that gap is too big to ignore. I'd
+    rather give it away to the first <strong>2 companies</strong> than
+    let it sit in a private demo. There's no charge today and no plan to
+    charge for at least 6 months — and when/if I do charge later, the
+    pilot companies stay free.
+  </p>
+
+  <div class="pilot-grid">
+    <div class="pilot-card">
+      <h3><span class="pilot-icon">→</span> What you get</h3>
       <ul>
-        <li>Up to 1 active job requisition</li>
-        <li>Up to 200 applications / month</li>
-        <li>Tier routing &amp; response emails</li>
-        <li>Email via Resend (you provide the key)</li>
-        <li>Community support</li>
+        <li><strong>A live, populated portal</strong> on a private URL with 50 demo candidates across all four tiers</li>
+        <li><strong>Use it on a real requisition</strong> — bring your own JD and I'll seed the data</li>
+        <li><strong>Pre-drafted replies</strong> ready to send (one click per candidate)</li>
+        <li><strong>30-minute walkthrough</strong> + handoff with someone on the team</li>
+        <li><strong>6 months of access</strong> while we iterate, and beyond if you keep giving feedback</li>
+        <li><strong>Direct line to me</strong> for anything broken or missing — usually a same-day reply</li>
       </ul>
-      <a href="/dashboard" class="btn btn-outline">Start free</a>
     </div>
-    <div class="plan featured">
-      <h3>Pro</h3>
-      <p class="tag">For growing talent teams</p>
-      <div class="price">
-        <span class="num">$199</span>
-        <span class="per">/ month</span>
-      </div>
+    <div class="pilot-card">
+      <h3><span class="pilot-icon">←</span> What I'll ask in return</h3>
       <ul>
-        <li>Unlimited active requisitions</li>
-        <li>Up to 5,000 applications / month</li>
-        <li>Custom rubrics per role</li>
-        <li>Async screening + behavioral scoring</li>
-        <li>Funnel analytics &amp; export</li>
-        <li>Email support, 1 business day</li>
+        <li><strong>30 minutes of feedback</strong> after your first 2 weeks — what worked, what didn't, what was missing</li>
+        <li><strong>Permission to use anonymized aggregate metrics</strong> in case studies (e.g. "X% faster time-to-respond across N pilots")</li>
+        <li><strong>No long-term contract.</strong> If we work together later, great — but there's no obligation, and you can stop using it any time.</li>
+        <li><strong>Two companies. That's it.</strong> After the first two pilots, I'll either keep going free or build a real pricing model — but you stay grandfathered.</li>
       </ul>
-      <a href="/dashboard" class="btn btn-primary">Start 14-day trial</a>
-    </div>
-    <div class="plan">
-      <h3>Enterprise</h3>
-      <p class="tag">For in-house talent ops at scale</p>
-      <div class="price">
-        <span class="num">Custom</span>
-      </div>
-      <ul>
-        <li>Unlimited applications &amp; requisitions</li>
-        <li>SSO + SCIM provisioning</li>
-        <li>Custom email domains &amp; DKIM</li>
-        <li>ATS integrations (Greenhouse, Lever, Workday)</li>
-        <li>Calibration examples for company-specific rubrics</li>
-        <li>Named CSM, 4-hour SLA</li>
-      </ul>
-      <a href="mailto:sales@resumetool.example" class="btn btn-outline">Talk to sales</a>
     </div>
   </div>
+
+  <div class="pilot-cta">
+    <a href="/#contact" class="btn btn-primary btn-lg">Claim a free pilot</a>
+    <a href="/demo" class="btn btn-outline btn-lg">▶ Watch the demo first</a>
+  </div>
+
+  <p class="pilot-note">
+    Or if you'd rather poke at it yourself first: clone the repo, run
+    <code>make seed</code>, and try the portal locally in &lt; 2 minutes.
+    <a href="https://github.com/expphoto/resumetool">View on GitHub →</a>
+  </p>
 </section>
 
 <!-- ============================ FAQ ============================ -->
@@ -642,49 +640,57 @@
 <!-- ============================ FINAL CTA ============================ -->
 <div class="cta-band strong">
   <h2>See what zero inbox feels like</h2>
-  <p>Open the live portal, click around, read the AI-drafted replies. No signup, no waitlist, no demo call required.</p>
+  <p>Open the demo portal, click around, read the AI-drafted replies. No signup, no waitlist, no demo call required. When you're ready for a private instance of your own, claim one of the two free pilot slots.</p>
   <div class="cta-row">
-    <a href="/dashboard" class="btn btn-primary btn-lg">Open the portal</a>
-    <a href="#pricing" class="btn btn-outline btn-lg">See pricing</a>
+    <a href="/#contact" class="btn btn-primary btn-lg">Claim a free pilot</a>
+    <a href="#why-free" class="btn btn-outline btn-lg">Why it's free</a>
   </div>
 </div>
 
-<!-- ============================ CONTACT / PORTAL DEMO ============================ -->
+<!-- ============================ CONTACT / FREE PILOT REQUEST ============================ -->
 <section class="section contact" id="contact">
   <div class="contact-card">
-    <span class="eyebrow" style="display:inline-block;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--accent);background:var(--accent-soft);padding:0.3em 0.9em;border-radius:999px;">Portal access</span>
-    <h2>Want the live portal?</h2>
+    <span class="eyebrow" style="display:inline-block;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--accent);background:var(--accent-soft);padding:0.3em 0.9em;border-radius:999px;">Free pilot — 2 spots</span>
+    <h2>Want in?</h2>
     <p class="sub">
-      The portal is a separate deployment (the marketing site you're on
-      is the static front door). Send a quick note and we'll spin up a
-      fresh instance with demo data and walk you through it on a call.
+      Send a short note about your team and the kind of roles you run.
+      If you're a fit, I'll spin up a private instance within 48 hours
+      and walk you through it. No demo call required, no sales process,
+      no procurement team to convince.
     </p>
     <div class="contact-grid">
       <div class="contact-detail">
-        <h3>What you'll get</h3>
+        <h3>What happens next</h3>
         <ul>
-          <li>A live, populated portal on a private URL</li>
-          <li>50 demo candidates across all four tiers</li>
-          <li>Pre-drafted emails ready to send (one click)</li>
-          <li>30 minutes of walkthrough with the team</li>
+          <li>You email me — I reply same day, usually within a few hours</li>
+          <li>15-minute call (or async email exchange) to learn about your team</li>
+          <li>I provision a private URL, seeded with 50 demo candidates</li>
+          <li>30-minute walkthrough + handoff at your pace</li>
+          <li>You use it on a real requisition; 6 months of access minimum</li>
+          <li>30 minutes of feedback after week 2 — that's the only ask</li>
         </ul>
       </div>
       <div class="contact-detail">
-        <h3>What we'll ask</h3>
+        <h3>What helps me decide if we're a fit</h3>
         <ul>
-          <li>How many roles you typically run per quarter</li>
-          <li>Whether you have an ATS we should integrate with</li>
-          <li>Your email-from domain (for production rollout)</li>
+          <li>How many roles you run per quarter, and how big the pipelines get</li>
+          <li>What your current process looks like (keyword ATS? manual triage? both?)</li>
+          <li>Whether you'd run it on real candidates or want to start with a sandbox</li>
         </ul>
+        <p style="margin-top: 0.75rem; font-size: 0.82rem; color: var(--ink-500);">
+          None of these are dealbreakers. They're just useful context so
+          I can show you the parts of the tool that actually matter for
+          your team.
+        </p>
       </div>
     </div>
     <div class="contact-cta">
-      <a href="mailto:hello@resumetool.example?subject=Portal%20demo%20request" class="btn btn-primary btn-lg">Request a portal demo</a>
+      <a href="mailto:hello@resumetool.example?subject=Free%20pilot%20request" class="btn btn-primary btn-lg">Claim a free pilot</a>
       <a href="https://github.com/expphoto/resumetool" class="btn btn-outline btn-lg">View on GitHub</a>
     </div>
     <p style="margin-top: 1rem; font-size: 0.82rem; color: var(--ink-500);">
-      Or clone the repo, run <code>make seed</code>, and try the
-      portal yourself locally in &lt; 2 minutes.
+      Or if you'd rather poke at it yourself first: clone the repo, run
+      <code>make seed</code>, and try the portal locally in &lt; 2 minutes.
     </p>
   </div>
 </section>
@@ -694,12 +700,12 @@
   <div class="links">
     <a href="#how-it-works">How it works</a> ·
     <a href="#tiers">Tiers</a> ·
-    <a href="#pricing">Pricing</a> ·
+    <a href="#why-free">Why it's free</a> ·
     <a href="#faq">FAQ</a> ·
-    <a href="/dashboard">Portal</a> ·
-    <a href="mailto:hello@resumetool.example">Contact</a>
+    <a href="/demo">Try the demo</a> ·
+    <a href="mailto:hello@resumetool.example?subject=Free%20pilot%20request">Contact</a>
   </div>
   <div>ResumeTool — Hiring triage that talks to everyone.</div>
-  <div style="margin-top: 0.5rem; font-size: 0.78rem;">© ResumeTool demo. Built for high-volume hiring teams.</div>
+  <div style="margin-top: 0.5rem; font-size: 0.78rem;">A free pilot project for the first 2 companies that grab it.</div>
 </footer>
 {% endblock %}

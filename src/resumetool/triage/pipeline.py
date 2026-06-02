@@ -9,7 +9,7 @@ from resumetool.analysis.resume_parser import ResumeParser
 from resumetool.database.models import (
     Application, ScreeningSession, TriageResult,
 )
-from resumetool.employer.models import Criterion, CriterionScore
+from resumetool.employer.models import Criterion
 from resumetool.triage.behavioral import compute_behavioral_score
 from resumetool.triage.router import assign_tier, compute_composite, generate_response_email
 from resumetool.triage.scoring import score_resume_against_rubric

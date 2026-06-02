@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Funnel — ResumeTool{% endblock %}
+
+{% block content %}
+<div class="row" style="margin-bottom: 0.5rem;">
+  <h1 style="flex:1;">Funnel Analytics {% if selected_req %}— {{ selected_req.title }}{% endif %}</h1>
+  <a href="/dashboard/outbox{% if req_id %}?req_id={{ req_id }}{% endif %}" class="btn btn-primary">
+    Open Outbox →
+  </a>
+</div>
+
+<!-- KPI cards -->
+<div class="kpi-grid">
+  <div class="kpi">
+    <div class="label">Applications</div>
+    <div class="value">{{ total_apps }}</div>
+    <div class="delta">in scope</div>
+  </div>
+  <div class="kpi accent">
+    <div class="label">AI-Triaged</div>
+    <div class="value">{{ triaged }}</div>
+    <div class="delta">
+      {% if total_apps %}{{ "%.0f"|format(triaged / total_apps * 100) }}% processed{% else %}—{% endif %}
+    </div>
+  </div>
+  <div class="kpi success">
+    <div class="label">HM Decisions</div>
+    <div class="value">{{ decided }}</div>
+    <div class="delta">on file</div>
+  </div>
+  <div class="kpi warn">
+    <div class="label">Emails Reached</div>
+    <div class="value">{{ emails_sent }} / {{ total_apps }}</div>
+    <div class="delta">
+      {% if total_apps %}{{ "%.0f"|format(emails_sent / total_apps * 100) }}% communicated{% else %}—{% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Tier funnel viz -->
+<div class="card">
+  <div class="card-header">
+    <h2>Tier distribution</h2>
+    <span class="muted">Where every applicant landed</span>
+  </div>
+  <div class="funnel">
+    {% for tier_letter, label, sub, color in tier_definitions %}
+      {% set count = by_tier.get(tier_letter, 0) %}
+      {% set pct = (count / triaged * 100) if triaged else 0 %}
+      <div class="funnel-step {{ tier_letter }}">
+        <div class="label">Tier {{ tier_letter }} · {{ label }}</div>
+        <div class="value">{{ count }}</div>
+        <div class="pct">
+          {{ "%.0f"|format(pct) }}% · {{ sub }}
+        </div>
+        <div class="bar score-bar-wrap">
+          <div class="score-bar" style="width: {{ pct|round(0, 'floor') }}%; background: {{ color }};"></div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Two-column: screen + decision -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+  <div class="card">
+    <div class="card-header"><h2>Async screens</h2><span class="muted">Tier B/C candidate responses</span></div>
+    <div class="stack-tight">
+      {% for label, color in [("pending", "var(--ink-400)"), ("sent", "var(--tier-b)"), ("completed", "var(--tier-a)"), ("expired", "var(--tier-d)")] %}
+        <div class="row-between" style="padding: 0.3rem 0;">
+          <div class="row" style="gap: 0.5rem;">
+            <span class="badge badge-{{ label }}">{{ label }}</span>
+            <span class="muted">screens</span>
+          </div>
+          <strong style="font-size: 1.05rem;">{{ by_screen.get(label, 0) }}</strong>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h2>Hiring-manager decisions</h2><span class="muted">After triage</span></div>
+    <div class="stack-tight">
+      {% for label, color in [("interview", "var(--tier-a)"), ("hold", "var(--tier-b)"), ("reject", "var(--tier-d)")] %}
+        <div class="row-between" style="padding: 0.3rem 0;">
+          <div class="row" style="gap: 0.5rem;">
+            <span class="badge badge-{{ label }}">{{ label }}</span>
+            <span class="muted">candidates</span>
+          </div>
+          <strong style="font-size: 1.05rem;">{{ by_decision.get(label, 0) }}</strong>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- What each tier means -->
+<div class="card" style="margin-top: 1rem;">
+  <div class="card-header">
+    <h2>What each tier means</h2>
+    <span class="muted">How the system responds</span>
+  </div>
+  <div class="tier-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+    {% for tier_letter, label, sub, color in tier_definitions %}
+      <div class="tier-card {{ tier_letter }}">
+        <div class="tier-tag">Tier {{ tier_letter }}</div>
+        <h3 style="font-size: 1rem;">{{ label }}</h3>
+        <p class="muted" style="font-size: 0.88rem; margin-top: 0.3rem;">{{ sub }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

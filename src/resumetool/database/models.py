@@ -2,7 +2,7 @@
 from datetime import datetime
 from sqlalchemy import (
     Column, String, Float, DateTime, Text, JSON, ForeignKey,
-    Enum as SAEnum, Boolean,
+    Enum as SAEnum,
 )
 from sqlalchemy.orm import DeclarativeBase, relationship
 import enum
@@ -100,6 +100,7 @@ class Application(Base):
     triage_result = relationship("TriageResult", back_populates="application", uselist=False)
     screening_session = relationship("ScreeningSession", back_populates="application", uselist=False)
     hm_decision = relationship("HMDecisionRecord", back_populates="application", uselist=False)
+    email_events = relationship("EmailEvent", back_populates="application")
 
 
 class TriageResult(Base):
@@ -152,3 +153,37 @@ class HMDecisionRecord(Base):
     decided_at = Column(DateTime, default=datetime.utcnow)
 
     application = relationship("Application", back_populates="hm_decision")
+
+
+class EmailStatus(str, enum.Enum):
+    queued = "queued"
+    sent = "sent"
+    failed = "failed"
+    dry_run = "dry_run"
+
+
+class EmailEvent(Base):
+    """Audit log of every response email generated or sent for an application.
+
+    One application can have many events (e.g. regenerate + send, retry, etc.).
+    The most recent successful send is also reflected on the TriageResult
+    via ``response_sent_at`` for fast dashboard queries.
+    """
+    __tablename__ = "email_events"
+
+    id = Column(String, primary_key=True)
+    application_id = Column(
+        String, ForeignKey("applications.id"), nullable=False, index=True,
+    )
+    tier = Column(SAEnum(TierEnum))
+    to_email = Column(String, nullable=False)
+    subject = Column(String)
+    body = Column(Text, nullable=False)
+    status = Column(SAEnum(EmailStatus), default=EmailStatus.queued)
+    provider = Column(String)  # "resend", "dry_run", "console"
+    provider_id = Column(String)  # Resend message ID, etc.
+    error_message = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    sent_at = Column(DateTime)
+
+    application = relationship("Application", back_populates="email_events")

@@ -24,6 +24,8 @@ PAGES = [
     ("demo.html", "demo/index.html", "demo"),
 ]
 
+BRAND_URL = "https://expphoto.github.io/resumetool/"
+
 
 def build(out_dir: Path, base_href: str) -> int:
     if out_dir.exists():
@@ -42,6 +44,7 @@ def build(out_dir: Path, base_href: str) -> int:
             body_class=body_class,
             base_href=base_href,
             live_stats=None,
+            brand_url=BRAND_URL,
         )
 
         html = html.replace('href="/dashboard"', 'href="/#contact"')

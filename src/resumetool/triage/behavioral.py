@@ -2,9 +2,7 @@
 import json
 import logging
 
-from openai import OpenAI
-
-from resumetool.config import settings
+from resumetool.llm import get_client
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +56,15 @@ def _score_cover_letter(cover_letter: str | None, req_title: str) -> float:
     if not cover_letter or len(cover_letter.strip()) < 50:
         return 0.2  # No or very short cover letter
 
-    client = OpenAI(api_key=settings.openai_api_key)
+    client = get_client()
+    if client is None:
+        # Offline fallback: a longer cover letter that mentions the role
+        # title is treated as a mid-range sign of effort.
+        text = cover_letter.lower()
+        role_words = [w for w in req_title.lower().split() if len(w) > 3]
+        hit = any(w in text for w in role_words)
+        return 0.65 if hit else 0.45
+
     system = (
         "Score this cover letter's customization quality for the given role. "
         "0.0 = generic/template, 1.0 = highly specific, references role/company details, "

@@ -4,10 +4,8 @@ import logging
 import secrets
 from datetime import datetime, timedelta
 
-from openai import OpenAI
-
-from resumetool.config import settings
 from resumetool.employer.models import Criterion
+from resumetool.llm import get_client
 from resumetool.types import ResumeAnalysis
 
 logger = logging.getLogger(__name__)
@@ -29,7 +27,9 @@ def generate_screening_questions(
 
     Returns list of {id, question, criterion, context} dicts.
     """
-    client = OpenAI(api_key=settings.openai_api_key)
+    client = get_client()
+    if client is None:
+        return _fallback_questions(criteria)
 
     gaps = _identify_gaps(stage1_detail, criteria)
     gap_text = "\n".join(f"- {g}" for g in gaps) if gaps else "No major gaps identified."
@@ -79,7 +79,17 @@ def score_screening_answers(
     req_title: str,
 ) -> tuple[float, dict]:
     """Score a candidate's text answers. Returns (score 0-1, notes dict)."""
-    client = OpenAI(api_key=settings.openai_api_key)
+    client = get_client()
+    if client is None:
+        # Offline fallback: score = mean of answer lengths clamped to [0,1]
+        if not questions or not answers:
+            return 0.5, {"summary": "No answers to score", "notes": {}}
+        lens = []
+        for q in questions:
+            a = (answers.get(q.get("id", ""), "") or "").strip()
+            lens.append(min(1.0, len(a) / 200.0))
+        score = sum(lens) / max(1, len(lens))
+        return round(score, 3), {"summary": "Offline heuristic (length-based)", "notes": {}}
 
     qa_pairs = []
     for q in questions:

@@ -1,0 +1,17 @@
+Senior Cloud Platform Engineer
+
+We are looking for an experienced engineer to lead our Kubernetes platform
+team. You will design and operate multi-tenant Kubernetes clusters on AWS,
+improve our CI/CD pipelines, and mentor junior engineers.
+
+Responsibilities:
+- Design and operate multi-tenant Kubernetes clusters on AWS
+- Improve our CI/CD pipelines and developer experience
+- Mentor junior engineers and lead design reviews
+
+Requirements:
+- 5+ years of experience with Python and Go
+- Deep knowledge of AWS, Kubernetes, Docker, Terraform
+- Experience with PostgreSQL and Redis at scale
+- Strong communication and mentoring skills
+- Experience with observability stacks (Prometheus, Grafana) is a plus

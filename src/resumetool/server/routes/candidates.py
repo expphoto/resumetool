@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from resumetool.analysis.resume_parser import ResumeParser
 from resumetool.database import get_db
 from resumetool.database.models import Application, Candidate, JobRequisition, TriageResult, ScreeningSession
-from resumetool.employer.models import ApplicationCreate, CandidateTierResult
+from resumetool.employer.models import CandidateTierResult
 from resumetool.triage.pipeline import run_triage
 
 router = APIRouter(prefix="/api/v1", tags=["candidates"])
@@ -159,7 +159,8 @@ def get_candidate_detail(application_id: str, db: Session = Depends(get_db)):
 
 def _parse_resume_bytes(file_bytes: bytes, filename: str) -> tuple[str, dict]:
     """Parse resume bytes to (raw_text, parsed_dict)."""
-    import tempfile, os
+    import tempfile
+    import os
     suffix = "." + filename.rsplit(".", 1)[-1].lower() if "." in filename else ".txt"
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
         tmp.write(file_bytes)

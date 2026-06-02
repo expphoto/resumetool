@@ -1,6 +1,6 @@
 """OpenAI client for AI-powered analysis and generation."""
 import json
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Optional
 from openai import OpenAI
 from pydantic import ValidationError
 
@@ -9,9 +9,14 @@ from resumetool.types import ResumeAnalysis, Skill, Experience, SkillLevel, JobL
 
 class OpenAIAnalyzer:
     """OpenAI-powered resume and job analysis."""
-    
+
     def __init__(self, api_key: Optional[str] = None, model: str = "gpt-5-nano"):
-        self.client = OpenAI(api_key=api_key)
+        # Lazy-construct: if no key, fall back to None and the methods degrade gracefully.
+        if api_key:
+            self.client = OpenAI(api_key=api_key)
+        else:
+            from resumetool.llm import get_client
+            self.client = get_client()
         self.model = model
     
     def enhance_resume_analysis(self, basic_analysis: ResumeAnalysis) -> ResumeAnalysis:

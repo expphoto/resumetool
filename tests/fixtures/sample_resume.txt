@@ -1,0 +1,32 @@
+Jane Smith
+Senior Software Engineer
+jane.smith@example.com | (555) 123-4567
+
+Summary
+-------
+Senior engineer with 8 years of experience building distributed systems on
+AWS. Strong background in Python, Kubernetes, and PostgreSQL.
+
+Skills
+------
+Python, AWS, Kubernetes, Docker, PostgreSQL, Redis, Terraform, Go
+
+Experience
+----------
+Acme Inc — Staff Engineer — 2020 - present
+- Led migration from monolith to 40 microservices on Kubernetes
+- Reduced p99 latency from 800ms to 120ms and cut AWS bill by 35%
+- Mentored a team of 4 junior engineers
+
+BetaCorp — Senior Engineer — 2016 - 2020
+- Built data pipeline processing 50M events per day on AWS
+- Owned the on-call rotation and reduced incidents by 60%
+
+Education
+---------
+B.S. Computer Science, State University, 2014
+
+Certifications
+--------------
+AWS Solutions Architect Associate
+Certified Kubernetes Administrator

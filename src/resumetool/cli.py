@@ -1,4 +1,4 @@
-from typing import Optional, Sequence, List
+from typing import Optional, Sequence
 from pathlib import Path
 import sys
 import os
@@ -20,7 +20,7 @@ from importlib import resources
 from resumetool.analysis.resume_parser import ResumeParser
 from resumetool.discovery.job_search import JobSearchEngine
 from resumetool.ai.openai_client import OpenAIAnalyzer
-from resumetool.types import ResumeAnalysis, JobListing, JobMatch
+from resumetool.types import JobMatch
 
 app = typer.Typer(help="AI-powered job matching and resume optimization system.")
 
@@ -213,7 +213,7 @@ def discover(
             )
         
         console.print(jobs_table)
-        console.print(f"\n[dim]Use 'resumetool match' to see how well these jobs match your resume[/dim]")
+        console.print("\n[dim]Use 'resumetool match' to see how well these jobs match your resume[/dim]")
         
     except Exception as e:
         typer.echo(f"Error discovering jobs: {e}", err=True)
@@ -232,7 +232,6 @@ def match(
     """Find and analyze job matches for your resume."""
     try:
         from rich.console import Console
-        from rich.table import Table
         from rich.panel import Panel
         
         console = Console()
@@ -330,7 +329,7 @@ def optimize(
             raise typer.Exit(1)
         
         # This is a simplified version - would need full job search integration
-        console.print(f"[yellow]Resume optimization is under development[/yellow]")
+        console.print("[yellow]Resume optimization is under development[/yellow]")
         console.print(f"Would optimize {resume.name} for: {job_query}")
         console.print(f"Output: {output or 'optimized_resume.docx'}")
         
@@ -345,14 +344,14 @@ def apply(
     auto: bool = typer.Option(False, help="Automatically submit application")
 ):
     """Track or auto-apply to a job (future feature)."""
-    typer.echo(f"[yellow]Application management is under development[/yellow]")
+    typer.echo("[yellow]Application management is under development[/yellow]")
     typer.echo(f"Would {'auto-apply' if auto else 'track application'} for job: {job_id}")
 
 
 @app.command()
 def dashboard():
     """Launch web interface for managing applications (future feature)."""
-    typer.echo(f"[yellow]Web dashboard is under development[/yellow]")
+    typer.echo("[yellow]Web dashboard is under development[/yellow]")
     typer.echo("Would launch FastAPI web interface at http://localhost:8000")
 
 

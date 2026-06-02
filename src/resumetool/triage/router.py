@@ -1,12 +1,9 @@
 """Stage 4: Composite scoring, tier assignment, and response email generation."""
-import json
 import logging
 from typing import Literal
 
-from openai import OpenAI
-
-from resumetool.config import settings
 from resumetool.employer.models import CriterionScore
+from resumetool.llm import get_client
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +54,9 @@ def generate_response_email(
     criterion_scores: list[CriterionScore],
 ) -> str:
     """Generate a tier-appropriate response email body. No candidate gets silence."""
-    client = OpenAI(api_key=settings.openai_api_key)
+    client = get_client()
+    if client is None:
+        return _fallback_email(tier, candidate_name, req_title, company_name)
 
     top_strengths = [cs.criterion for cs in sorted(criterion_scores, key=lambda x: x.score, reverse=True)[:2]]
     top_gaps = [cs.criterion for cs in sorted(criterion_scores, key=lambda x: x.score)[:2] if cs.score < 0.6]

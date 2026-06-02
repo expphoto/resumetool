@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     # Email delivery (resend.com API key)
     email_api_key: str | None = None
     email_from_address: str = "hiring@example.com"
+    # When True, never actually send email — log + mark event as dry_run.
+    dry_run_email: bool = False
 
     # HR dashboard basic auth (comma-separated "user:pass" pairs)
     hr_auth_users: str = "admin:changeme"

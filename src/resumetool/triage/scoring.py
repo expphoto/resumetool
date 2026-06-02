@@ -3,10 +3,8 @@ import json
 import logging
 from typing import Any
 
-from openai import OpenAI
-
-from resumetool.config import settings
 from resumetool.employer.models import Criterion, CriterionScore
+from resumetool.llm import get_client
 from resumetool.types import ResumeAnalysis
 
 logger = logging.getLogger(__name__)
@@ -21,7 +19,7 @@ def score_resume_against_rubric(
 
     Returns (weighted_score, per_criterion_scores).
     """
-    client = OpenAI(api_key=settings.openai_api_key)
+    client = get_client()
 
     per_scores: list[CriterionScore] = []
     for criterion in criteria:
@@ -33,12 +31,19 @@ def score_resume_against_rubric(
 
 
 def _score_criterion(
-    client: OpenAI,
+    client,
     resume: ResumeAnalysis,
     criterion: Criterion,
     calibration_examples: list[dict[str, Any]],
 ) -> tuple[float, str]:
-    """Ask the AI to score one criterion. Returns (score 0-1, reasoning)."""
+    """Ask the AI to score one criterion. Returns (score 0-1, reasoning).
+
+    Falls back to a deterministic keyword-overlap heuristic when no
+    OpenAI client is available (offline demos, unit tests).
+    """
+    if client is None:
+        return _heuristic_score_criterion(resume, criterion)
+
     resume_summary = _build_resume_summary(resume)
     few_shot = _build_few_shot_block(calibration_examples, criterion.name)
 
@@ -111,3 +116,52 @@ def _build_few_shot_block(examples: list[dict[str, Any]], criterion_name: str) -
             f"(score was {ex.get('score', '?')})"
         )
     return "\n".join(lines) + "\n"
+
+
+_KEYWORD_GROUPS: dict[str, list[str]] = {
+    "Kubernetes depth": ["kubernetes", "k8s", "helm", "istio", "kubectl", "operators", "cncf"],
+    "AWS expertise": ["aws", "ec2", "eks", "s3", "vpc", "iam", "lambda", "cloudformation", "terraform"],
+    "Coding (Python/Go)": ["python", "go", "golang", "django", "flask", "fastapi", "grpc"],
+    "Communication & mentoring": ["mentor", "led", "lead", "presented", "spoke", "wrote", "documentation", "design review"],
+    "Production track record": ["production", "on-call", "incident", "sre", "reliability", "scale", "scaled"],
+}
+
+
+def _heuristic_score_criterion(
+    resume: ResumeAnalysis,
+    criterion: Criterion,
+) -> tuple[float, str]:
+    """Offline fallback: keyword overlap between criterion keywords and resume.
+
+    Counts keyword **occurrences** across the resume, weighting skills-list
+    matches at 2x and prose mentions at 1x, with a small bonus per unique
+    keyword hit (so a resume that mentions many distinct terms beats one
+    that hammers the same term repeatedly).
+    """
+    keywords = _KEYWORD_GROUPS.get(criterion.name, [criterion.name.lower()])
+
+    skills_text = " ".join(s.name.lower() for s in resume.skills)
+    prose_parts = [(resume.summary or "").lower()]
+    for exp in resume.experience:
+        prose_parts.append((exp.title or "").lower())
+        prose_parts.append((exp.description or "").lower())
+    prose_text = " ".join(prose_parts)
+
+    weighted_occurrences = 0
+    unique_hits = 0
+    for kw in keywords:
+        skill_count = skills_text.count(kw)
+        prose_count = prose_text.count(kw)
+        if skill_count or prose_count:
+            unique_hits += 1
+        weighted_occurrences += 2 * skill_count + prose_count
+
+    if weighted_occurrences == 0:
+        return 0.10, "Offline heuristic: no keyword overlap"
+
+    # Combine raw depth (occurrences) and breadth (distinct keywords)
+    depth = weighted_occurrences          # 0..~20 typical
+    breadth = unique_hits                 # 0..len(keywords)
+    raw = 0.18 * depth + 0.20 * breadth  # depth 1→0.18, breadth 1→0.20
+    score = min(0.97, 0.20 + raw)
+    return round(score, 3), f"Offline heuristic: {unique_hits} keywords, {weighted_occurrences} weighted occurrences"
